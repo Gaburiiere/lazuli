@@ -331,6 +331,12 @@ textarea.inp{resize:vertical;min-height:70px}
 .chips.s .chip span{padding:.42rem .8rem;font-size:.84rem;line-height:1.25;text-align:center}
 .chips.s .chip span small{display:block;font-size:.68rem;color:var(--texto-2);font-weight:300}
 select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2378b0db' stroke-width='1.5' stroke-linecap='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;background-size:18px;padding-right:2.4rem;cursor:pointer}
+.mix{display:grid;gap:.35rem;border:1px solid var(--linha);border-radius:var(--r-sm);padding:.5rem .6rem .5rem .9rem}
+.mix-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-size:.9rem;color:var(--profundo)}
+.qty.sm{height:34px}.qty.sm button{width:30px}.qty.sm output{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;color:var(--profundo);font-size:.9rem}
+.mix-status{margin:.1rem 0 0;font-size:.82rem;color:var(--azul)}
+.mix-status.warn{color:#a76767}
+.btn.add:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .opt-note{margin:-.3rem 0 .9rem;font-size:.78rem;line-height:1.45;color:var(--texto-2)}
 .card .price{margin:.2rem 0 1rem;font-size:1.2rem}
 .card .row{padding:0}
@@ -720,8 +726,8 @@ const PRODUCTS = [
     note:"O valor do bolo caseiro é confirmado pelo WhatsApp.",
     price:() => null },
   { id:"docinhos", name:"Docinhos", cat:"Docinhos · 15 g", img:"img/card-docinhos2.webp", fit:"cover",
-    desc:"Docinhos de 15 g, vendidos por cento.", byCento:true, step:50, min:50,
-    opts:[ { k:"sabor", label:"Sabor", type:"select", values:["Brigadeiro 50%","Amendoim","Ninho","Beijinho","Morango"] } ],
+    desc:"Docinhos de 15 g, vendidos por cento. Misture os sabores como quiser.", byCento:true, step:50, min:50, mixed:true,
+    opts:[ { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, values:["Brigadeiro 50%","Amendoim","Ninho","Beijinho","Morango"] } ],
     price:() => 90 },
   { id:"brownie", name:"Brownie", cat:"Doces", img:"img/card-brownie.webp", fit:"cover",
     desc:"Tradicional ou recheado, com cobertura de chocolate.", step:1, min:1,
@@ -901,6 +907,11 @@ const esc = t => String(t).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(
 function optHTML(p, d){
   const name = `${p.id}-${d.k}`;
   const cond = d.showIf ? ` data-show-k="${d.showIf.k}" data-show-v="${esc(d.showIf.v)}"` : "";
+  if(d.type === "mix"){
+    const each = Math.floor(p.min / d.values.length / d.step) * d.step || d.step;
+    return `<div class="opt"><span class="legend">${d.label}</span><div class="mix">${d.values.map((v,i) =>
+      `<div class="mix-row"><span>${esc(v)}</span><div class="qty sm" role="group" aria-label="Quantidade de ${esc(v)}"><button type="button" data-mix="${i}" data-d="-1" aria-label="Menos ${esc(v)}"><svg class="i"><use href="#minus"/></svg></button><output class="mv" data-i="${i}">${each}</output><button type="button" data-mix="${i}" data-d="1" aria-label="Mais ${esc(v)}"><svg class="i"><use href="#plus"/></svg></button></div></div>`).join("")}</div><p class="mix-status" aria-live="polite"></p></div>`;
+  }
   if(d.type === "select"){
     return `<div class="opt"${cond}><label class="legend" for="${name}">${d.label}</label><select class="inp sm" id="${name}" data-k="${d.k}">${d.values.map(v => `<option>${esc(v)}</option>`).join("")}</select></div>`;
   }
@@ -921,11 +932,11 @@ grid.innerHTML = PRODUCTS.map(p => `
       ${p.note ? `<p class="opt-note">${p.note}</p>` : ""}
       <p class="price" aria-live="polite"></p>
       <div class="row">
-        <div class="qty" role="group" aria-label="Quantidade de ${p.name}">
+        ${p.mixed ? `<output class="v mix-total" hidden>${p.min}</output>` : `<div class="qty" role="group" aria-label="Quantidade de ${p.name}">
           <button type="button" data-q="-1" aria-label="Diminuir"><svg class="i"><use href="#minus"/></svg></button>
           <output class="v">${p.min}</output>
           <button type="button" data-q="1" aria-label="Aumentar"><svg class="i"><use href="#plus"/></svg></button>
-        </div>
+        </div>`}
         <button class="btn add" type="button"><span class="lbl">Adicionar ao pedido</span><span class="lbl-done"><svg class="i"><use href="#check"/></svg>Adicionado</span></button>
       </div>
     </div>
@@ -935,6 +946,7 @@ function readOpts(card, p){
   const o = {};
   p.opts.forEach(d => {
     if(d.showIf && o[d.showIf.k] !== d.showIf.v) return;
+    if(d.type === "mix"){ o[d.k] = [...card.querySelectorAll(".mv")].map((m,i) => +m.textContent ? `${m.textContent} ${d.values[i]}` : "").filter(Boolean).join(", "); return; }
     o[d.k] = d.type === "select" ? $(`select[data-k="${d.k}"]`, card).value : $(`input[name="${p.id}-${d.k}"]:checked`, card).value;
   });
   return o;
@@ -942,6 +954,15 @@ function readOpts(card, p){
 function updateCardPrice(card){
   const p = PRODUCTS.find(x => x.id === card.dataset.id), o = readOpts(card, p);
   card.querySelectorAll(".opt[data-show-k]").forEach(el => { el.hidden = o[el.dataset.showK] !== el.dataset.showV; });
+  if(p.mixed){
+    const sum = [...card.querySelectorAll(".mv")].reduce((a,m) => a + +m.textContent, 0);
+    $(".v", card).textContent = sum;
+    const st = $(".mix-status", card), ok = sum >= p.min && sum % p.step === 0;
+    const falta = sum < p.min ? p.min - sum : (p.step - sum % p.step) % p.step;
+    st.textContent = ok ? `Total: ${sum} unidades` : `Total: ${sum} unidades · faltam ${falta} para fechar ${sum + falta}`;
+    st.classList.toggle("warn", !ok);
+    card.querySelector(".add").disabled = !ok;
+  }
   const q = +$(".v", card).textContent;
   if(p.price(o) == null){ $(".price", card).innerHTML = `Valor a combinar <small>· pelo WhatsApp</small>`; return; }
   const unit = `${brl(p.price(o))} <small>${unitTxt(p)}</small>`;
@@ -956,14 +977,20 @@ grid.addEventListener("click", e => {
   const card = e.target.closest(".card"); if(!card) return;
   const p = PRODUCTS.find(x => x.id === card.dataset.id);
   const out = $(".v", card);
+  const mb = e.target.closest("[data-mix]");
+  if(mb){
+    const d = p.opts.find(x => x.type === "mix"), m = card.querySelector(`.mv[data-i="${mb.dataset.mix}"]`);
+    m.textContent = Math.max(0, +m.textContent + (+mb.dataset.d) * d.step); updateCardPrice(card); return;
+  }
   const qb = e.target.closest("[data-q]");
   if(qb){ out.textContent = Math.max(p.min, +out.textContent + (+qb.dataset.q) * p.step); updateCardPrice(card); return; }
   const add = e.target.closest(".add");
-  if(add){
+  if(add && !add.disabled){
     Cart.add(p.id, readOpts(card, p), +out.textContent);
     add.classList.add("done");
     clearTimeout(add._t); add._t = setTimeout(() => add.classList.remove("done"), 1500);
-    out.textContent = p.min; updateCardPrice(card);
+    if(!p.mixed) out.textContent = p.min;
+    updateCardPrice(card);
     Drawer.open(2000);
   }
 });
@@ -974,8 +1001,8 @@ grid.addEventListener("click", e => {
 const prodOf = i => PRODUCTS.find(p => p.id === i.id);
 const validItem = i => { const p = prodOf(i); if(!p || !i.o) return false; try{ const v = p.price(i.o); return v === null || typeof v === "number"; }catch(e){ return false; } };
 const Cart = {
-  items: (store.get("lazuli-cart-v2") || []).filter(validItem),
-  save(){ store.set("lazuli-cart-v2", this.items); renderCart(); },
+  items: (store.get("lazuli-cart-v3") || []).filter(validItem),
+  save(){ store.set("lazuli-cart-v3", this.items); renderCart(); },
   add(id, o, q){
     const key = id + "|" + JSON.stringify(o);
     const it = this.items.find(i => i.key === key);
@@ -1002,11 +1029,11 @@ function renderCart(){
       <div><h4>${p.name}</h4><span class="u">${esc(optLabel(p, i.o))}<br>${p.price(i.o) == null ? "valor a combinar" : brl(p.price(i.o)) + " " + unitTxt(p)}</span></div>
       <button class="rm" type="button" aria-label="Remover ${p.name}"><svg class="i"><use href="#x"/></svg></button>
       <div class="ctl">
-        <div class="qty" role="group" aria-label="Quantidade">
+        ${p.mixed ? `<span class="u">${i.qty} unidades</span>` : `<div class="qty" role="group" aria-label="Quantidade">
           <button type="button" data-q="-1" aria-label="Diminuir"><svg class="i"><use href="#minus"/></svg></button>
           <span class="v">${i.qty}</span>
           <button type="button" data-q="1" aria-label="Aumentar"><svg class="i"><use href="#plus"/></svg></button>
-        </div>
+        </div>`}
         <span class="tot">${priceTxt(lineTotal(p, i.o, i.qty))}</span>
       </div>
       <div class="obs"><input class="inp sm" id="obs-${n}" placeholder="Observação (ex.: escrever Parabéns Ana)" value="${esc(i.obs||"")}" aria-label="Observação para ${p.name}"></div>
@@ -1030,7 +1057,7 @@ itemsEl.addEventListener("click", e => {
 itemsEl.addEventListener("input", e => {
   const li = e.target.closest(".item"); if(!li || !e.target.matches(".inp")) return;
   Cart.items.find(i => i.key === li.dataset.key).obs = e.target.value;
-  store.set("lazuli-cart-v2", Cart.items); updateFinishLink();
+  store.set("lazuli-cart-v3", Cart.items); updateFinishLink();
 });
 
 /* ---------- Formulário (rascunho salvo) ---------- */
