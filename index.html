@@ -242,10 +242,10 @@ section{position:relative}
 
 /* Botão flutuante WhatsApp */
 .wa-float{position:fixed;right:clamp(14px,2.4vw,28px);bottom:calc(env(safe-area-inset-bottom,0px) + clamp(14px,2.4vw,28px));z-index:40;display:flex;align-items:center;gap:.6rem;text-decoration:none;flex-direction:row-reverse}
-.wa-float .c{width:58px;height:58px;border-radius:50%;background:#fff;border:1px solid var(--linha);display:grid;place-items:center;color:var(--azul);box-shadow:var(--sombra-leve);transition:border-color .3s,transform .3s}
+.wa-float .c{width:58px;height:58px;border-radius:50%;background:#fff;border:1.5px solid #9fe2b8;display:grid;place-items:center;color:#25D366;box-shadow:var(--sombra-leve);transition:border-color .3s,transform .3s}
 .wa-float .c svg.i{width:26px;height:26px}
 .wa-float .t{background:#fff;border:1px solid var(--linha);color:var(--profundo);padding:.55rem 1rem;border-radius:999px;font-size:.62rem;box-shadow:var(--sombra-leve);opacity:0;transform:translateX(8px);transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}
-.wa-float:hover .c,.wa-float:focus-visible .c{border-color:var(--azul);transform:translateY(-2px)}
+.wa-float:hover .c,.wa-float:focus-visible .c,.wa-float:active .c{border-color:#25D366;transform:translateY(-2px)}
 .wa-float:hover .t,.wa-float:focus-visible .t{opacity:1;transform:none}
 body.drawer-open .wa-float{opacity:0;pointer-events:none}
 
