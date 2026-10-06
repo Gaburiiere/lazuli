@@ -341,16 +341,63 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 .card .price{margin:.2rem 0 1rem;font-size:1.2rem}
 .card .row{padding:0}
 .menu-foot{margin:clamp(30px,4vw,44px) auto 0;text-align:center;color:var(--texto-2);font-size:.66rem}
-.grid-prod > .card:last-child:nth-child(odd){grid-column:1/-1;width:calc(50% - clamp(9px,1.2vw,15px));justify-self:center}
-@media (max-width:1100px){.grid-prod{grid-template-columns:1fr;max-width:760px;margin:0 auto}.grid-prod > .card:last-child:nth-child(odd){width:auto;justify-self:stretch}}
-.menu-filter,.pick,.sheet-x,.sheet-scrim{display:none}
+/* --- Cardápio compacto: cartão resumido + ficha do produto ao clicar --- */
+.grid-prod{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1100px){.grid-prod{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.card{grid-template-columns:1fr;grid-template-rows:auto 1fr;align-items:stretch;gap:0;padding:22px 22px 20px;cursor:pointer;text-align:center}
+.card .media{width:min(190px,70%);margin:0 auto 1.1rem}
+.card .desc,.card .opt,.card .opt-note,.card .row,.card .price,.card .sheet-x{display:none}
+.card .desc.short{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 .9rem;font-size:.9rem}
+.card .buy{margin-top:auto}
+.from-price{margin:0 0 .9rem;color:var(--profundo);font-size:1.12rem;font-variant-numeric:tabular-nums}
+.from-price small{color:var(--texto-2);font-size:.78rem;font-weight:300}
+.pick{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border:1px solid var(--azul);background:#fff;color:var(--profundo);border-radius:999px;padding:.75rem 1.4rem;font-size:.62rem;font-weight:400;cursor:pointer;transition:background .25s,color .25s}
+.pick svg.i{width:14px;height:14px}
+.card:hover .pick,.pick:hover,.pick:focus-visible{background:var(--azul);color:#fff}
+.card-ph{visibility:hidden}
+.card[hidden]{display:none!important}
+.menu-filter{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.5rem;margin:-.6rem 0 1.8rem;position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px);z-index:6;padding:.6rem 0;background:linear-gradient(var(--branco) 82%,rgba(255,255,255,0))}
+.menu-filter button{flex:none;border:1px solid var(--linha);background:#fff;color:var(--profundo);border-radius:999px;padding:.55rem 1.1rem;font-size:.66rem;cursor:pointer;transition:border-color .2s,background .2s}
+.menu-filter button:hover{border-color:var(--azul)}
+.menu-filter button[aria-selected="true"]{background:var(--azul);border-color:var(--azul);color:#fff}
+.menu-search{position:relative;flex:0 1 240px;margin-left:.4rem}
+.menu-search input{width:100%;height:40px;border:1px solid var(--linha);border-radius:999px;padding:0 1rem 0 2.4rem;font:inherit;font-size:.88rem;color:var(--profundo);background:#fff}
+.menu-search input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(120,176,219,.2)}
+.menu-search svg.i{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--azul);pointer-events:none}
+.menu-empty{text-align:center;color:var(--texto);margin:1rem 0 0}
+.sheet-scrim{display:block;position:fixed;inset:0;background:rgba(34,64,95,.32);z-index:84;opacity:0;pointer-events:none;transition:opacity .3s}
+.sheet-scrim.on{opacity:1;pointer-events:auto}
+body.sheet-open{overflow:hidden}
+body.sheet-open .wa-float{opacity:0;pointer-events:none}
+/* Ficha aberta (computador): janela central em duas colunas, botão de adicionar sempre visível */
+#grid .card.open{position:fixed;z-index:86;left:50%;top:50%;transform:translate(-50%,-50%);width:min(940px,calc(100vw - 48px));max-height:min(88vh,860px);overflow-y:auto;overscroll-behavior:contain;display:grid;grid-template-columns:280px minmax(0,1fr);gap:2.2rem;padding:40px 40px 0;border-radius:28px;cursor:default;text-align:left;box-shadow:0 30px 80px -30px rgba(34,64,95,.45);transition:none;animation:modalIn .3s cubic-bezier(.2,.75,.2,1)}
+#grid .card.open:hover{border-color:var(--linha)}
+#grid .card.open .media{width:100%;margin:0;position:sticky;top:0;align-self:start}
+#grid .card.open .desc{display:block;-webkit-line-clamp:unset;margin:0 0 1.2rem}
+#grid .card.open .desc.short,#grid .card.open .from-price,#grid .card.open .pick{display:none}
+#grid .card.open .opt{display:flex}
+#grid .card.open .opt-note{display:block}
+#grid .card.open .buy{position:sticky;bottom:0;background:#fff;padding:14px 0 26px;margin-top:.4rem;border-top:1px solid var(--linha);z-index:1}
+#grid .card.open .price{display:block;margin:0 0 .7rem}
+#grid .card.open .row{display:flex;padding:0}
+#grid .card.open .sheet-x{display:grid;place-items:center;position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;border:1px solid var(--linha);background:#fff;color:var(--profundo);cursor:pointer;z-index:2}
+#grid .card.open .sheet-x:hover{border-color:var(--azul);color:var(--azul)}
+#grid .card.open h3{font-size:2rem;margin-bottom:.4rem}
+#grid .card.open .plate img{transform:none}
+@keyframes modalIn{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
 @media (max-width:640px){
-  .menu-filter{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none;margin:-1rem calc(-1 * clamp(16px,4vw,40px)) 1.2rem;padding:.6rem clamp(16px,4vw,40px);position:sticky;top:calc(env(safe-area-inset-top,0px) + 104px);z-index:6;background:linear-gradient(var(--branco) 80%,rgba(255,255,255,0))}
+  .menu-filter{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:.5rem;overflow-x:auto;scrollbar-width:none;margin:-1rem calc(-1 * clamp(16px,4vw,40px)) 1.2rem;padding:.6rem clamp(16px,4vw,40px);position:sticky;top:calc(env(safe-area-inset-top,0px) + 104px);z-index:6;background:linear-gradient(var(--branco) 80%,rgba(255,255,255,0))}
+  .menu-search{order:-1;flex:0 0 190px;margin:0}
+  .grid-prod{grid-template-columns:1fr}
+  .card .desc.short{display:none}
+  .from-price{margin:.15rem 0 0;font-size:.92rem}
+  .from-price small{font-size:.72rem}
+  .card .buy{margin:0}
   .menu-filter::-webkit-scrollbar{display:none}
   .menu-filter button{flex:none;border:1px solid var(--linha);background:#fff;color:var(--profundo);border-radius:999px;padding:.5rem 1rem;font-size:.66rem;cursor:pointer}
   .menu-filter button[aria-selected="true"]{background:var(--azul);border-color:var(--azul);color:#fff}
   .grid-prod{gap:10px}
-  .card{grid-template-columns:78px minmax(0,1fr);gap:14px;padding:10px 14px 10px 10px;align-items:center;cursor:pointer;border-radius:var(--r-md)}
+  .card{grid-template-columns:78px minmax(0,1fr);gap:14px;padding:10px 14px 10px 10px;align-items:center;cursor:pointer;border-radius:var(--r-md);text-align:left}
   .card:hover{transform:none}
   .card .media{width:78px;padding:4px;margin:0}
   .card .media .spk{display:none}
@@ -359,13 +406,15 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
   .card h3{font-size:1.22rem;margin:0}
   .card .price{margin:.15rem 0 0;font-size:.92rem}
   .card .price small{font-size:.74rem}
-  .pick{display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem;border:0;background:none;color:var(--azul);padding:0;font-size:.6rem;font-weight:500;pointer-events:none}
+  .pick,.card:hover .pick,.pick:hover{display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem;border:0;background:none;color:var(--azul);padding:0;font-size:.6rem;font-weight:500}
   .pick svg.i{width:13px;height:13px}
   .card[hidden]{display:none!important}
   .sheet-scrim{display:block;position:fixed;inset:0;background:rgba(34,64,95,.28);z-index:84;opacity:0;pointer-events:none;transition:opacity .3s}
   .sheet-scrim.on{opacity:1;pointer-events:auto}
-  .card.open{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:86;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;grid-template-columns:1fr;gap:.6rem;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;cursor:default;box-shadow:0 -20px 50px -20px rgba(34,64,95,.35);animation:sheetUp .35s cubic-bezier(.2,.75,.2,1)}
-  .card.open .media{width:150px;margin:0 auto}
+  #grid .card.open,#grid .card.open:hover{left:0;right:0;bottom:0;top:auto;transform:none;width:auto;max-height:90vh;grid-template-columns:1fr;gap:.6rem;padding:22px 20px 0;border-radius:24px 24px 0 0;cursor:default;box-shadow:0 -20px 50px -20px rgba(34,64,95,.35);animation:sheetUp .35s cubic-bezier(.2,.75,.2,1)}
+  #grid .card.open .media{width:150px;margin:0 auto;position:relative}
+  #grid .card.open .buy{padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+  #grid .card.open h3{font-size:1.6rem}
   .card.open .desc,.card.open .opt,.card.open .opt-note{display:flex}
   .card.open .desc,.card.open .opt-note{display:block}
   .card.open .row{display:flex}
@@ -555,6 +604,7 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
     <symbol id="pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></symbol>
     <symbol id="play" viewBox="0 0 24 24"><path d="M7.5 5.5v13l11-6.5z"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></symbol>
+    <symbol id="search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></symbol>
     <symbol id="quote" viewBox="0 0 24 24"><path d="M10 7c-3 .8-5 3.2-5 6.5V17h4.5v-4.5H6.8M19 7c-3 .8-5 3.2-5 6.5V17h4.5v-4.5h-2.7"/></symbol>
     <symbol id="pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
     <symbol id="insta" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.8" cy="7.2" r=".6"/></symbol>
@@ -658,7 +708,7 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
     <div class="sec-head reveal">
       <p class="over">Do forno para você</p>
       <h2 class="title" id="t-card">Cardápio</h2>
-      <p class="lead">Escolha as opções de cada item, ajuste a quantidade e adicione ao pedido.</p>
+      <p class="lead">Toque em um item para ver os sabores e opções. Use os filtros ou a busca para achar mais rápido.</p>
     </div>
     <div class="menu-filter" id="menuFilter" role="tablist" aria-label="Filtrar cardápio"></div>
     <div class="grid-prod" id="grid"></div>
@@ -1147,6 +1197,25 @@ function optHTML(p, d){
   return `<div class="opt"${cond}><span class="legend">${d.label}</span><div class="chips s" role="radiogroup" aria-label="${d.label}">${d.values.map((v,i) =>
     `<label class="chip"><input type="radio" name="${name}" id="${name}-${i}" value="${esc(v.v)}" ${i===0?"checked":""}><span>${esc(v.v)}${v.sub ? `<small>${v.sub}</small>` : ""}</span></label>`).join("")}</div></div>`;
 }
+/* menor preço entre as combinações de opções (para "a partir de") */
+function fromPrice(p){
+  const ds = p.opts.filter(d => d.type === "chips" || d.type === "select");
+  let combos = [{}];
+  for(const d of ds){
+    const vals = d.type === "chips" ? d.values.map(v => v.v) : d.values;
+    if(combos.length * vals.length > 400) break;
+    combos = combos.flatMap(c => vals.map(v => ({ ...c, [d.k]: v })));
+  }
+  let min = null;
+  for(const c of combos){ let v = null; try{ v = p.price(c); }catch(e){} if(typeof v === "number" && (min == null || v < min)) min = v; }
+  return min;
+}
+function fromPriceTxt(p){
+  if(p.available === false) return "Indisponível no momento";
+  const v = fromPrice(p); if(v == null) return `Valor a combinar`;
+  const many = PRODUCTS && p.opts.some(d => d.type === "chips" || d.type === "select");
+  return `${many ? "<small>a partir de</small> " : ""}${brl(v)} <small>${unitTxt(p)}</small>`;
+}
 grid.innerHTML = PRODUCTS.map(p => `
   <article class="card reveal" data-id="${p.id}" data-group="${p.group}">
     <div class="media">
@@ -1157,12 +1226,15 @@ grid.innerHTML = PRODUCTS.map(p => `
       <button class="sheet-x" type="button" aria-label="Fechar"><svg class="i"><use href="#x"/></svg></button>
       <p class="cat-l caps">${p.cat}</p>
       <h3>${p.name}</h3>
+      <p class="desc short">${p.desc}</p>
       <p class="desc">${p.desc}</p>
       ${p.opts.map(d => optHTML(p, d)).join("")}
       ${(p.addons || []).length ? `<fieldset class="opt addons"><legend class="legend">Adicionais</legend>${p.addons.map((x,i) => `<label><input type="checkbox" name="${p.id}-addon" value="${esc(x.id)}"><span>${esc(x.name)} <small>${x.price == null ? "· valor a combinar" : "+ " + brl(x.price)}</small></span></label>`).join("")}</fieldset>` : ""}
       ${p.note ? `<p class="opt-note">${p.note}</p>` : ""}
+      <div class="buy">
+      <p class="from-price">${fromPriceTxt(p)}</p>
+      <button class="pick caps" type="button" aria-haspopup="dialog" aria-label="Escolher opções de ${esc(p.name)}">Escolher opções <svg class="i"><use href="#arrow"/></svg></button>
       <p class="price" aria-live="polite"></p>
-      <button class="pick caps" type="button" tabindex="-1" aria-hidden="true">Escolher <svg class="i"><use href="#arrow"/></svg></button>
       <div class="row">
         ${p.mixed ? `<output class="v mix-total" hidden>${p.min}</output>` : `<div class="qty" role="group" aria-label="Quantidade de ${p.name}">
           <button type="button" data-q="-1" aria-label="Diminuir"><svg class="i"><use href="#minus"/></svg></button>
@@ -1170,6 +1242,7 @@ grid.innerHTML = PRODUCTS.map(p => `
           <button type="button" data-q="1" aria-label="Aumentar"><svg class="i"><use href="#plus"/></svg></button>
         </div>`}
         <button class="btn add" type="button"><span class="lbl">Adicionar ao pedido</span><span class="lbl-done"><svg class="i"><use href="#check"/></svg>Adicionado</span></button>
+      </div>
       </div>
     </div>
   </article>`).join("");
@@ -1219,38 +1292,67 @@ if (CONNECTED && "IntersectionObserver" in window) {
   grid.querySelectorAll(".card").forEach(c => vio.observe(c));
 }
 
-/* ---------- Celular: filtro por categoria + ficha do produto ---------- */
-const mobileMenu = matchMedia("(max-width:640px)");
+/* ---------- Filtro por categoria, busca e ficha do produto ---------- */
 const groups = ["Todos", ...new Set(PRODUCTS.map(p => p.group))];
 const filterEl = $("#menuFilter");
-filterEl.innerHTML = groups.map((g,i) => `<button type="button" role="tab" class="caps" aria-selected="${i===0}">${g}</button>`).join("");
+filterEl.innerHTML = groups.map((g,i) => `<button type="button" role="tab" class="caps" aria-selected="${i===0}">${g}</button>`).join("") +
+  `<label class="menu-search"><span class="sr">Buscar no cardápio</span><svg class="i" aria-hidden="true"><use href="#search"/></svg><input type="search" id="menuSearch" placeholder="Buscar sabor" autocomplete="off"></label>`;
+const normTxt = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const searchTxt = p => normTxt([p.name, p.cat, p.group, p.desc, ...p.opts.flatMap(d => (d.values || []).map(v => typeof v === "string" ? v : v.v)), ...(p.addons || []).map(x => x.name)].join(" "));
+let curGroup = "Todos";
+function applyFilter(){
+  const q = normTxt($("#menuSearch").value);
+  let shown = 0;
+  grid.querySelectorAll(".card").forEach(c => {
+    const p = PRODUCTS.find(x => x.id === c.dataset.id);
+    const ok = (curGroup === "Todos" || c.dataset.group === curGroup) && (!q || q.split(" ").every(w => searchTxt(p).includes(w)));
+    c.hidden = !ok; if(ok) shown++;
+  });
+  let em = $("#menuEmpty");
+  if(!em){ em = document.createElement("p"); em.id = "menuEmpty"; em.className = "menu-empty"; em.setAttribute("aria-live","polite"); grid.after(em); }
+  em.textContent = shown ? "" : "Não encontramos esse item. Que tal perguntar pelo WhatsApp? Fazemos sob encomenda.";
+  em.hidden = !!shown;
+}
 filterEl.addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
   filterEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", x === b));
-  const g = b.textContent;
-  grid.querySelectorAll(".card").forEach(c => { c.hidden = mobileMenu.matches && g !== "Todos" && c.dataset.group !== g; });
+  curGroup = b.textContent; applyFilter();
 });
-mobileMenu.addEventListener?.("change", () => { if(!mobileMenu.matches){ grid.querySelectorAll(".card").forEach(c => c.hidden = false); closeSheet(); } else { filterEl.querySelector('[aria-selected="true"]')?.click(); } });
+$("#menuSearch").addEventListener("input", applyFilter);
 const sheetScrim = $("#sheetScrim");
+let sheetReturn = null;
 function openSheet(card){
-  closeSheet();
+  closeSheet(true);
+  sheetReturn = card.querySelector(".pick");
+  const ph = document.createElement("div"); ph.className = "card-ph"; ph.style.height = card.offsetHeight + "px"; card.before(ph);
   card.classList.add("open"); card.scrollTop = 0;
   if (CONNECTED) LZ.track("product_view", { product: card.dataset.id, once: true });
-  card.setAttribute("role","dialog"); card.setAttribute("aria-modal","true");
+  card.setAttribute("role","dialog"); card.setAttribute("aria-modal","true"); card.setAttribute("aria-label", card.querySelector("h3").textContent.trim());
   sheetScrim.classList.add("on"); document.body.classList.add("sheet-open");
   setTimeout(() => card.querySelector(".sheet-x")?.focus(), 50);
 }
-function closeSheet(){
+function closeSheet(silent){
   const c = grid.querySelector(".card.open"); if(!c) return;
-  c.classList.remove("open"); c.removeAttribute("role"); c.removeAttribute("aria-modal");
+  c.classList.remove("open"); c.removeAttribute("role"); c.removeAttribute("aria-modal"); c.removeAttribute("aria-label");
+  grid.querySelector(".card-ph")?.remove();
   sheetScrim.classList.remove("on"); document.body.classList.remove("sheet-open");
+  if(!silent) sheetReturn?.focus({ preventScroll: true });
 }
-sheetScrim.addEventListener("click", closeSheet);
-document.addEventListener("keydown", e => { if(e.key === "Escape") closeSheet(); });
+sheetScrim.addEventListener("click", () => closeSheet());
+document.addEventListener("keydown", e => {
+  const c = grid.querySelector(".card.open"); if(!c) return;
+  if(e.key === "Escape"){ closeSheet(); return; }
+  if(e.key === "Tab"){
+    const f = [...c.querySelectorAll("button:not([disabled]),input:not([disabled]),select,textarea,a[href]")].filter(x => x.offsetParent !== null);
+    if(!f.length) return;
+    if(e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length-1].focus(); }
+    else if(!e.shiftKey && document.activeElement === f[f.length-1]){ e.preventDefault(); f[0].focus(); }
+  }
+});
 grid.addEventListener("click", e => {
   const card = e.target.closest(".card"); if(!card) return;
   if(e.target.closest(".sheet-x")){ e.stopImmediatePropagation(); closeSheet(); return; }
-  if(mobileMenu.matches && !card.classList.contains("open")){ e.stopImmediatePropagation(); openSheet(card); }
+  if(!card.classList.contains("open")){ e.stopImmediatePropagation(); openSheet(card); }
 }, true);
 grid.addEventListener("change", e => { const c = e.target.closest(".card"); if(c) updateCardPrice(c); });
 
@@ -1655,7 +1757,6 @@ const Hours = {
 /* ---------- Bairros, orçamento e cupom ---------- */
 const LOCAL_ZONES = (CONFIG.bairros || []).map(([n, v]) => ({ neighborhood: n, feeCents: v == null ? null : Math.round(v * 100), etaMinutes: 0, minOrderCents: 0 }));
 var STORE = { zones: LOCAL_ZONES.slice(), minOrder: 0, loaded: false, loyalty: false, pix: null };
-const normTxt = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 var Checkout = (() => {
   let quote = null, unsupported = false, seq = 0, timer = 0;
   let coupon = { code: "", state: null, msg: "" };      // state: "ok" | "bad" | "check" | null
