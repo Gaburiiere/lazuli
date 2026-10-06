@@ -74,6 +74,7 @@
           };
         }),
         note: p.note || "",
+        addons: (p.addons || []).filter(function (a) { return a && a.id && a.name; }).map(function (a) { return { id: String(a.id), name: String(a.name), price: a.priceCents == null ? null : a.priceCents / 100 }; }),
         price: function (o) { return unitPrice(p, o || {}); }
       };
     });
@@ -139,6 +140,7 @@
     var b = document.getElementById("lz-consent"); if (b) b.remove();
     if (c === "aceito") startTracking();
   };
+  LZ.hasTracking = function () { return !!(TR.ga4 || TR.pixel); };
   LZ.cookiePrefs = function () { try { localStorage.removeItem("lz-consent"); } catch (e) {} if (TR.ga4 || TR.pixel) banner(); };
   function mirror(name, slug) {
     if (!TR.on) return;
@@ -163,13 +165,14 @@
     if (!LZ.enabled) return;
     opts = opts || {};
     if (opts.once) { var key = name + ":" + (opts.product || ""); if (seen[key]) return; seen[key] = 1; }
+    if (opts.session) { var sk = "lz-ev-" + name; if (safeGet(sessionStorage, sk)) return; safeSet(sessionStorage, sk, "1"); }
     queue.push({ name: name, productSlug: opts.product, props: opts.props, at: Date.now() });
     mirror(name, opts.product);
     clearTimeout(timer); timer = setTimeout(function () { LZ.flush(false); }, 1500);
   };
   LZ.cart = function (items) {
     if (!LZ.enabled) return;
-    cartSnap = items.map(function (i) { return { slug: i.id, options: i.o, qty: i.qty }; });
+    cartSnap = items.map(function (i) { var x = { slug: i.id, options: i.o, qty: i.qty }; if (i.a && i.a.length) x.addonIds = i.a; return x; });
     clearTimeout(timer); timer = setTimeout(function () { LZ.flush(false); }, 1500);
   };
   LZ.flush = function (beacon) {
@@ -195,6 +198,31 @@
           return j;
         });
       }, function () { var e = new Error("Sem conexão com o painel."); e.network = true; throw e; });
+  };
+
+  /* ---------- Orçamento (subtotal, taxa, desconto e total calculados pelo painel) ---------- */
+  var quoteCtrl = null;
+  LZ.quote = function (payload) {
+    if (!LZ.enabled) return Promise.reject(new Error("off"));
+    if (quoteCtrl && quoteCtrl.abort) quoteCtrl.abort();
+    quoteCtrl = "AbortController" in window ? new AbortController() : null;
+    var t = setTimeout(function () { if (quoteCtrl) quoteCtrl.abort(); }, 5000);
+    return fetch(url("/quote"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), credentials: "omit", signal: quoteCtrl ? quoteCtrl.signal : undefined })
+      .then(function (r) {
+        clearTimeout(t);
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (r.status === 404 || r.status === 405) { var n = new Error("indisponivel"); n.unsupported = true; throw n; }
+          if (!r.ok) { var e = new Error(j.error || "Não foi possível calcular o total."); e.status = r.status; e.body = j; throw e; }
+          return j;
+        });
+      });
+  };
+
+  /* ---------- Acompanhar pedido (só número, status, linha do tempo, total e pagamento) ---------- */
+  LZ.orderStatus = function (code) {
+    if (!LZ.enabled) return Promise.reject(new Error("off"));
+    if (!/^[A-Za-z0-9_-]{6,64}$/.test(code || "")) return Promise.reject(new Error("Código inválido."));
+    return getJSON("/orders/" + encodeURIComponent(code), 6000);
   };
 
   window.LZ = LZ;
