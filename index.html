@@ -900,7 +900,16 @@ const CONFIG = {
   instagramTxt: "@lazuliconfeitaria",
   endereco: "Rio de Janeiro · RJ<br>Endereço completo a confirmar",   // EDITAR
   horario: "Atendimento sob encomenda<br>Horários pelo WhatsApp",     // EDITAR
-  regras: ["Pedido mínimo a combinar","Encomendas com antecedência","Taxa de entrega conforme o bairro","Consulte os bairros atendidos"] // EDITAR
+  regras: ["Pedido mínimo a combinar","Encomendas com antecedência","Taxa de entrega conforme o bairro","Consulte os bairros atendidos"], // EDITAR
+  // Bairros com taxa de entrega definida (valor em reais). Somam-se aos bairros cadastrados no painel;
+  // se o mesmo bairro existir no painel, vale o valor do painel. Bairro fora da lista → finaliza pelo WhatsApp.
+  bairros: [
+    ["Guadalupe", 10],
+    ["Rocha Miranda", 15], ["Madureira", 15], ["Marechal Hermes", 15], ["Ricardo de Albuquerque", 15],
+    ["Anchieta", 15], ["Parque Anchieta", 15], ["Deodoro", 15], ["Barros Filho", 15], ["Costa Barros", 15],
+    ["Honório Gurgel", 15], ["Coelho Neto", 15], ["Bento Ribeiro", 15], ["Oswaldo Cruz", 15],
+    ["Turiaçu", 15], ["Vaz Lobo", 15], ["Irajá", 15], ["Colégio", 15], ["Acari", 15]
+  ]
 };
 
 /* Bolos do banner (mesma ordem das miniaturas 01, 02, 03) */
@@ -1436,7 +1445,7 @@ $("#finish").addEventListener("click", e => {
     return;
   }
   updateFinishLink();   // garante a mensagem mais recente no link
-  if (CONNECTED && !sending) { e.preventDefault(); submitOnline(); }
+  if (CONNECTED && !sending && !(typeof Checkout !== "undefined" && Checkout.waOnly())) { e.preventDefault(); submitOnline(); }
 });
 
 /* ---------- Pedido registrado no painel ---------- */
@@ -1644,7 +1653,8 @@ const Hours = {
 };
 
 /* ---------- Bairros, orçamento e cupom ---------- */
-var STORE = { zones: [], minOrder: 0, loaded: false, loyalty: false, pix: null };
+const LOCAL_ZONES = (CONFIG.bairros || []).map(([n, v]) => ({ neighborhood: n, feeCents: v == null ? null : Math.round(v * 100), etaMinutes: 0, minOrderCents: 0 }));
+var STORE = { zones: LOCAL_ZONES.slice(), minOrder: 0, loaded: false, loyalty: false, pix: null };
 const normTxt = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 var Checkout = (() => {
   let quote = null, unsupported = false, seq = 0, timer = 0;
@@ -1653,8 +1663,19 @@ var Checkout = (() => {
   const delivery = () => form.modo.value === "entrega";
   const etaTxt = m => m >= 60 ? `${Math.floor(m/60)}h${m % 60 ? pad2(m % 60) : ""}` : `${m} min`;
 
+  /* Bairro sem taxa definida → o pedido é finalizado direto pelo WhatsApp */
+  const waOnly = () => delivery() && STORE.zones.length > 0 && !!F("f-bairro").value.trim() && !zone();
+  function syncButton(){
+    if(!CONNECTED) return;
+    const wa = waOnly(), btn = $("#finish"), note = $(".d-foot .note");
+    if(btn.dataset.mode === (wa ? "wa" : "online")) return;
+    btn.dataset.mode = wa ? "wa" : "online";
+    btn.innerHTML = wa ? `<svg class="i"><use href="#wa"/></svg> Finalizar pelo WhatsApp` : `<svg class="i"><use href="#check"/></svg> Enviar pedido`;
+    if(note) note.textContent = wa ? "A conversa abre com a mensagem pronta. Combinamos a entrega e o pagamento por lá." : "Seu pedido é registrado na hora. O Pix aparece logo depois; as demais formas, na entrega.";
+  }
   /* Taxa aparece numa linha discreta logo abaixo do bairro, assim que ele é digitado ou vem do CEP */
   function syncZone(){
+    syncButton();
     const line = $("#feeLine"), typed = F("f-bairro").value.trim();
     if(!STORE.zones.length || !typed || !delivery()){ line.hidden = true; line.innerHTML = ""; return; }
     const z = zone();
@@ -1664,7 +1685,7 @@ var Checkout = (() => {
       if(z.etaMinutes) p.push(`cerca de ${etaTxt(z.etaMinutes)}`);
       if(z.minOrderCents) p.push(`pedido mínimo ${brl(z.minOrderCents/100)}`);
       line.innerHTML = `<span>${p.join(` <span class="sep" aria-hidden="true">·</span> `)}</span>`;
-    } else line.textContent = "A taxa de entrega para esse bairro será combinada pelo WhatsApp.";
+    } else line.textContent = "Ainda não temos taxa para esse bairro. Finalize pelo WhatsApp que combinamos a entrega e o pagamento por lá.";
     line.hidden = false;
   }
   function payload(){
@@ -1764,7 +1785,7 @@ var Checkout = (() => {
   F("f-cupom").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); applyCoupon(); } });
 
   return {
-    changed, render, syncZone,
+    changed, render, syncZone, waOnly,
     formChanged(t){
       if(!t) return;
       if(t.name === "modo" || t.name === "bairro") changed();
@@ -1818,6 +1839,7 @@ var Checkout = (() => {
   });
 })();
 F("f-bairro").addEventListener("input", () => Checkout.changed());
+$("#bairros").innerHTML = STORE.zones.map(z => `<option value="${esc(z.neighborhood)}"></option>`).join("");
 
 /* ---------- Configuração da loja vinda do painel ---------- */
 const PAY_LABEL = { pix:"Pix", dinheiro:"Dinheiro", cartao_entrega:"Cartão na entrega", cartao:"Cartão na entrega" };
@@ -1870,7 +1892,8 @@ function applyConfig(st){
   }
   // bairros atendidos
   STORE.minOrder = cents(o.minOrderCents) || 0;
-  STORE.zones = (Array.isArray(st.zones) ? st.zones : []).filter(z => z && z.neighborhood).map(z => ({ neighborhood: String(z.neighborhood), feeCents: cents(z.feeCents), etaMinutes: +z.etaMinutes || 0, minOrderCents: cents(z.minOrderCents) || 0 }));
+  const panelZones = (Array.isArray(st.zones) ? st.zones : []).filter(z => z && z.neighborhood).map(z => ({ neighborhood: String(z.neighborhood), feeCents: cents(z.feeCents), etaMinutes: +z.etaMinutes || 0, minOrderCents: cents(z.minOrderCents) || 0 }));
+  STORE.zones = panelZones.concat(LOCAL_ZONES.filter(l => !panelZones.some(z => normTxt(z.neighborhood) === normTxt(l.neighborhood))));
   $("#bairros").innerHTML = STORE.zones.map(z => `<option value="${esc(z.neighborhood)}"></option>`).join("");
   // fidelidade e Pix
   const loy = st.loyalty || st.cashback || st.fidelidade;
@@ -2097,6 +2120,7 @@ if (CONNECTED) {
   $("#telField").hidden = false; $("#consentField").hidden = false;
   $("#finish").innerHTML = `<svg class="i"><use href="#check"/></svg> Enviar pedido`;
   const note = $(".d-foot .note"); if (note) note.textContent = "Seu pedido é registrado na hora. O Pix aparece logo depois; as demais formas, na entrega.";
+  $("#finish").dataset.mode = "online"; Checkout.syncZone();
   LZ.loadConfig().then(st => { if (st) applyConfig(st); Checkout.changed(); });
 }
 Track.boot();
