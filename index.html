@@ -462,7 +462,15 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 .open-badge.closed::before{background:#c9a3a3}
 .hint{margin:.25rem 0 0;font-size:.78rem;color:var(--texto-2);line-height:1.4}
 .hint.warn{color:#a76767}
-.zone-meta{font-size:.78rem;color:var(--texto-2);margin-top:.2rem}
+.cep-field .inp{max-width:220px}
+.cep-field small{text-transform:none;letter-spacing:0;color:var(--texto-2)}
+.cep-msg{margin:.3rem 0 0;font-size:.78rem;color:var(--texto-2)}
+.cep-msg.warn{color:#a76767}
+.fee-line{display:flex;align-items:baseline;gap:.5rem;margin:.45rem 0 0;font-size:.82rem;line-height:1.45;color:var(--texto)}
+.fee-line::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--azul);transform:translateY(-1px)}
+.fee-line b{font-weight:500;color:var(--profundo)}
+.fee-line .sep{color:var(--texto-2)}
+.fee-line.open::before{background:var(--texto-2)}
 .sum{display:grid;gap:.35rem;padding:1rem 1.1rem;border:1px solid var(--linha);border-radius:var(--r-md);background:var(--gelo);margin-top:.4rem}
 .sum div{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;color:var(--profundo);font-size:.92rem;font-variant-numeric:tabular-nums}
 .sum .disc strong{color:#3f7f5d}
@@ -816,15 +824,16 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
           </div>
         </div>
         <div class="addr" id="addr">
+          <div class="field cep-field"><label for="f-cep">CEP <small>(opcional)</small></label>
+            <input class="inp" id="f-cep" name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9" aria-describedby="cepMsg">
+            <p class="cep-msg" id="cepMsg" aria-live="polite" hidden></p>
+          </div>
           <div class="field"><label for="f-end">Endereço</label><input class="inp" id="f-end" name="endereco" autocomplete="street-address" placeholder="Rua e número"></div>
-          <div class="field" id="zoneField" hidden><label for="f-zona">Bairro</label>
-            <select class="inp" id="f-zona" name="zona"></select>
-            <p class="zone-meta" id="zoneMeta" aria-live="polite"></p>
+          <div class="field"><label for="f-bairro">Bairro</label><input class="inp" id="f-bairro" name="bairro" placeholder="Digite o seu bairro" list="bairros" autocomplete="off" aria-describedby="feeLine">
+            <datalist id="bairros"></datalist>
+            <p class="fee-line" id="feeLine" aria-live="polite" hidden></p>
           </div>
-          <div class="two">
-            <div class="field" id="bairroField"><label for="f-bairro" id="bairroLbl">Bairro</label><input class="inp" id="f-bairro" name="bairro" placeholder="Bairro"></div>
-            <div class="field"><label for="f-ref">Ponto de referência</label><input class="inp" id="f-ref" name="ref" placeholder="Opcional"></div>
-          </div>
+          <div class="field"><label for="f-ref">Ponto de referência</label><input class="inp" id="f-ref" name="ref" placeholder="Opcional"></div>
         </div>
         <div class="two">
           <div class="field"><label for="f-data">Data</label><input class="inp" type="date" id="f-data" name="data"></div>
@@ -1335,12 +1344,12 @@ const F = id => $("#" + id);
 function saveForm(){
   store.set("lazuli-form-v1", {
     nome:F("f-nome").value, tel:F("f-tel").value, modo:form.modo.value, end:F("f-end").value, bairro:F("f-bairro").value, ref:F("f-ref").value,
-    data:F("f-data").value, hora:F("f-hora").value, pag:form.pag.value, troco:form.troco.value, trocoVal:F("f-troco-val").value, obs:F("f-obs").value, zona:F("f-zona").value
+    data:F("f-data").value, hora:F("f-hora").value, pag:form.pag.value, troco:form.troco.value, trocoVal:F("f-troco-val").value, obs:F("f-obs").value, cep:F("f-cep").value
   });
 }
 (function loadForm(){
   const d = store.get("lazuli-form-v1"); if(!d) return;
-  F("f-nome").value = d.nome||""; F("f-tel").value = d.tel||""; F("f-end").value = d.end||""; F("f-bairro").value = d.bairro||""; F("f-ref").value = d.ref||"";
+  F("f-nome").value = d.nome||""; F("f-tel").value = d.tel||""; F("f-end").value = d.end||""; F("f-bairro").value = d.bairro||""; F("f-ref").value = d.ref||""; F("f-cep").value = d.cep||"";
   F("f-data").value = d.data||""; F("f-hora").value = d.hora||""; F("f-obs").value = d.obs||"";
   if(d.modo) form.modo.value = d.modo; if(d.pag) form.pag.value = d.pag; if(d.troco) form.troco.value = d.troco; F("f-troco-val").value = d.trocoVal||"";
 })();
@@ -1351,6 +1360,7 @@ function syncAddr(){
   $("#trocoBox").hidden = !din;
   $("#trocoValBox").hidden = !(din && form.troco.value === "sim");
 }
+const cepTxt = () => { const d = F("f-cep").value.replace(/\D/g,""); return d.length === 8 ? d.slice(0,5) + "-" + d.slice(5) : ""; };
 const parseBRL = t => { const v = parseFloat(String(t).replace(/[^\d,.]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",", ".")); return isNaN(v) ? 0 : v; };
 syncAddr();
 form.addEventListener("input", e => { e.target.classList?.remove("err"); syncAddr(); saveForm(); updateFinishLink(); $("#finishErr").hidden = true; });
@@ -1383,6 +1393,7 @@ function buildMessage(){
     const b = F("f-bairro").value.trim(), r = F("f-ref").value.trim();
     if(b) a += (a ? ", " : "") + b;
     if(r) a += ` (${r})`;
+    if(cepTxt()) a += ` · CEP ${cepTxt()}`;
     L.push(`*Entrega:* Sim — ${a}`);
   } else L.push("*Entrega:* Não, vou retirar");
   L.push(`*Data:* ${fmtData(F("f-data").value, F("f-hora").value)}`);
@@ -1410,8 +1421,7 @@ $("#finish").addEventListener("click", e => {
   }
   if(form.modo.value === "entrega"){
     need("f-end","Informe o endereço de entrega.");
-    if(!$("#zoneField").hidden && !F("f-zona").value){ F("f-zona").classList.add("err"); errs.push([F("f-zona"),"Escolha o seu bairro."]); }
-    else need("f-bairro","Informe o bairro.");
+    need("f-bairro","Informe o bairro.");
   }
   if(typeof Checkout !== "undefined") Checkout.validate(errs);
   if(form.pag.value === "Dinheiro" && form.troco.value === "sim"){
@@ -1442,7 +1452,7 @@ async function submitOnline(){
     customer: { name: F("f-nome").value.trim(), phone: F("f-tel").value.trim(), marketingConsent: F("f-consent").checked },
     items: Cart.items.map(i => { const x = { slug: i.id, options: i.o, qty: i.qty, notes: (i.obs || "").trim() || null }; if(i.a && i.a.length) x.addonIds = i.a; return x; }),
     fulfillment: entrega ? "entrega" : "retirada",
-    address: entrega ? { street: F("f-end").value.trim(), neighborhood: F("f-bairro").value.trim(), reference: F("f-ref").value.trim() || null } : null,
+    address: entrega ? { street: F("f-end").value.trim() + (cepTxt() ? ` · CEP ${cepTxt()}` : ""), neighborhood: F("f-bairro").value.trim(), reference: F("f-ref").value.trim() || null } : null,
     scheduledFor: d ? new Date(`${d}T${h || "12:00"}:00-03:00`).toISOString() : null,
     paymentMethod: PAG[form.pag.value] || "pix",
     couponCode: Checkout.coupon() || undefined,
@@ -1635,33 +1645,27 @@ const Hours = {
 
 /* ---------- Bairros, orçamento e cupom ---------- */
 var STORE = { zones: [], minOrder: 0, loaded: false, loyalty: false, pix: null };
-let savedZone = (store.get("lazuli-form-v1") || {}).zona || "";
-const OUTRO = "__outro";
+const normTxt = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 var Checkout = (() => {
   let quote = null, unsupported = false, seq = 0, timer = 0;
   let coupon = { code: "", state: null, msg: "" };      // state: "ok" | "bad" | "check" | null
-  const zone = () => { const v = F("f-zona").value; return STORE.zones.find(z => z.neighborhood === v) || null; };
+  const zone = () => { const v = normTxt(F("f-bairro").value); return v ? STORE.zones.find(z => normTxt(z.neighborhood) === v) || null : null; };
   const delivery = () => form.modo.value === "entrega";
   const etaTxt = m => m >= 60 ? `${Math.floor(m/60)}h${m % 60 ? pad2(m % 60) : ""}` : `${m} min`;
 
+  /* Taxa aparece numa linha discreta logo abaixo do bairro, assim que ele é digitado ou vem do CEP */
   function syncZone(){
-    const on = STORE.zones.length > 0;
-    $("#zoneField").hidden = !on;
-    const sel = F("f-zona").value, outro = sel === OUTRO;
-    $("#bairroField").hidden = on && !outro;
-    $("#bairroLbl").textContent = on && outro ? "Qual é o seu bairro?" : "Bairro";
-    const z = zone(), meta = $("#zoneMeta");
-    if(!on){ meta.textContent = ""; return; }
+    const line = $("#feeLine"), typed = F("f-bairro").value.trim();
+    if(!STORE.zones.length || !typed || !delivery()){ line.hidden = true; line.innerHTML = ""; return; }
+    const z = zone();
+    line.classList.toggle("open", !z);
     if(z){
-      F("f-bairro").value = z.neighborhood;
-      const p = [cents(z.feeCents) == null ? "Taxa a combinar" : z.feeCents === 0 ? "Entrega grátis" : `Taxa de entrega ${brl(z.feeCents/100)}`];
-      if(z.etaMinutes) p.push(`chega em cerca de ${etaTxt(z.etaMinutes)}`);
+      const p = [`Entrega em <b>${esc(z.neighborhood)}</b>: <b>${cents(z.feeCents) == null ? "taxa a combinar" : z.feeCents === 0 ? "grátis" : brl(z.feeCents/100)}</b>`];
+      if(z.etaMinutes) p.push(`cerca de ${etaTxt(z.etaMinutes)}`);
       if(z.minOrderCents) p.push(`pedido mínimo ${brl(z.minOrderCents/100)}`);
-      meta.textContent = p.join(" · ");
-    } else if(outro){
-      if(STORE.zones.some(z => z.neighborhood === F("f-bairro").value)) F("f-bairro").value = "";
-      meta.textContent = "Sem problema! A taxa de entrega será combinada pelo WhatsApp.";
-    } else { F("f-bairro").value = ""; meta.textContent = ""; }
+      line.innerHTML = `<span>${p.join(` <span class="sep" aria-hidden="true">·</span> `)}</span>`;
+    } else line.textContent = "A taxa de entrega para esse bairro será combinada pelo WhatsApp.";
+    line.hidden = false;
   }
   function payload(){
     return {
@@ -1694,7 +1698,7 @@ var Checkout = (() => {
     box.hidden = false;
     $("#sumSub").textContent = brl(n.sub) + (Cart.hasOpen() ? " + a combinar" : "");
     $("#sumFeeRow").hidden = !delivery();
-    $("#sumFee").textContent = n.feeOpen ? (STORE.zones.length && !F("f-zona").value ? "escolha o bairro" : "a combinar") : n.fee === 0 ? "Grátis" : brl(n.fee);
+    $("#sumFee").textContent = n.feeOpen ? (!F("f-bairro").value.trim() ? "informe o bairro" : "a combinar") : n.fee === 0 ? "Grátis" : brl(n.fee);
     $("#sumDiscRow").hidden = !n.disc;
     $("#sumDisc").textContent = "− " + brl(n.disc);
     $("#sumTotLbl").textContent = n.server ? "Total" : "Total estimado";
@@ -1763,7 +1767,7 @@ var Checkout = (() => {
     changed, render, syncZone,
     formChanged(t){
       if(!t) return;
-      if(t.name === "modo" || t.name === "zona"){ F("f-zona").classList.remove("err"); changed(); }
+      if(t.name === "modo" || t.name === "bairro") changed();
       if(t.name === "data" || t.name === "hora") Hours.check();
     },
     coupon: () => coupon.code && coupon.state !== "bad" ? coupon.code : "",
@@ -1785,6 +1789,35 @@ var Checkout = (() => {
     reset(){ quote = null; coupon = { code: "", state: null, msg: "" }; F("f-cupom").value = ""; couponUI(); render(); }
   };
 })();
+
+/* ---------- CEP: preenche rua e bairro (ViaCEP, serviço público) ---------- */
+(function(){
+  const cep = F("f-cep"), msg = $("#cepMsg");
+  let last = "", ctrl = null;
+  const say = (t, warn) => { msg.textContent = t; msg.classList.toggle("warn", !!warn); msg.hidden = !t; };
+  cep.addEventListener("input", () => {
+    const d = cep.value.replace(/\D/g,"").slice(0,8);
+    cep.value = d.length > 5 ? d.slice(0,5) + "-" + d.slice(5) : d;
+    if(d.length < 8){ last = ""; say(""); return; }
+    if(d === last) return; last = d;
+    if(ctrl) ctrl.abort(); ctrl = "AbortController" in window ? new AbortController() : null;
+    const t = setTimeout(() => ctrl && ctrl.abort(), 5000);
+    say("Buscando endereço…");
+    fetch(`https://viacep.com.br/ws/${d}/json/`, { signal: ctrl ? ctrl.signal : undefined, credentials: "omit" })
+      .then(r => r.json()).then(j => {
+        clearTimeout(t);
+        if(d !== last) return;
+        if(!j || j.erro){ say("Não encontramos esse CEP. Confira os números ou preencha o endereço abaixo.", true); return; }
+        const end = F("f-end");
+        if(j.logradouro && !end.value.trim()) end.value = j.logradouro + ", ";
+        if(j.bairro) F("f-bairro").value = j.bairro;
+        say([j.logradouro, j.bairro, j.localidade && j.uf ? `${j.localidade}/${j.uf}` : ""].filter(Boolean).join(" · "));
+        syncAddr(); saveForm(); updateFinishLink(); Checkout.changed();
+        if(document.activeElement === cep && j.logradouro){ end.focus(); const n = end.value.length; end.setSelectionRange?.(n, n); }
+      }).catch(() => { clearTimeout(t); if(d === last) say("Não foi possível buscar o CEP agora. Preencha o endereço abaixo.", true); last = ""; });
+  });
+})();
+F("f-bairro").addEventListener("input", () => Checkout.changed());
 
 /* ---------- Configuração da loja vinda do painel ---------- */
 const PAY_LABEL = { pix:"Pix", dinheiro:"Dinheiro", cartao_entrega:"Cartão na entrega", cartao:"Cartão na entrega" };
@@ -1838,13 +1871,7 @@ function applyConfig(st){
   // bairros atendidos
   STORE.minOrder = cents(o.minOrderCents) || 0;
   STORE.zones = (Array.isArray(st.zones) ? st.zones : []).filter(z => z && z.neighborhood).map(z => ({ neighborhood: String(z.neighborhood), feeCents: cents(z.feeCents), etaMinutes: +z.etaMinutes || 0, minOrderCents: cents(z.minOrderCents) || 0 }));
-  if(STORE.zones.length){
-    const sel = F("f-zona");
-    sel.innerHTML = `<option value="">Escolha o bairro</option>` + STORE.zones.map(z => `<option value="${esc(z.neighborhood)}">${esc(z.neighborhood)} — ${z.feeCents == null ? "taxa a combinar" : z.feeCents === 0 ? "entrega grátis" : brl(z.feeCents/100)}</option>`).join("") + `<option value="${OUTRO}">Meu bairro não está na lista</option>`;
-    const typed = F("f-bairro").value.trim().toLowerCase();
-    const match = STORE.zones.find(z => z.neighborhood.toLowerCase() === typed);
-    sel.value = savedZone && [...sel.options].some(x => x.value === savedZone) ? savedZone : match ? match.neighborhood : (typed ? OUTRO : "");
-  }
+  $("#bairros").innerHTML = STORE.zones.map(z => `<option value="${esc(z.neighborhood)}"></option>`).join("");
   // fidelidade e Pix
   const loy = st.loyalty || st.cashback || st.fidelidade;
   STORE.loyalty = !!(loy && (loy.enabled ?? loy.active ?? loy.ativo)) || o.loyaltyEnabled === true;
