@@ -370,6 +370,9 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
   .hero-ctas{justify-content:center}
   .stage{width:min(100%,520px)}
   .stage-col{padding-top:calc(13vw + 20px);margin-top:12px}
+  .hero-branch{top:calc(env(safe-area-inset-top,0px) + 104px)!important;width:124px!important;height:62px!important}
+  .hero{padding-top:calc(env(safe-area-inset-top,0px) + clamp(150px,18vh,180px) + 26px)}
+  .hero-spark{top:136px!important}
   .about{grid-template-columns:1fr}
   .quotes{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr;gap:0;max-width:420px}
@@ -452,8 +455,8 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 <main>
 <!-- ======= Hero com roda de bolos ======= -->
 <section class="hero" id="inicio" aria-label="Destaques">
-  <span class="orn float" style="left:-30px;top:120px;width:190px;height:95px;transform:scaleX(-1)"><svg><use href="#branch"/></svg></span>
-  <span class="orn float d2" style="left:44%;top:150px;width:16px;height:16px"><svg><use href="#spark"/></svg></span>
+  <span class="orn float hero-branch" style="left:-30px;top:120px;width:190px;height:95px;transform:scaleX(-1)"><svg><use href="#branch"/></svg></span>
+  <span class="orn float d2 hero-spark" style="left:44%;top:150px;width:16px;height:16px"><svg><use href="#spark"/></svg></span>
   <span class="orn float d3" style="left:6%;bottom:70px;width:11px;height:11px"><svg><use href="#spark"/></svg></span>
   <div class="wrap hero-grid">
     <div class="hero-copy">
