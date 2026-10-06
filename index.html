@@ -139,6 +139,7 @@ section{position:relative}
 .sec-head{text-align:center;margin:0 auto clamp(40px,5vw,64px);max-width:40rem}
 .sec-head .lead{margin:0 auto}
 .bg-gelo{background:var(--gelo)}
+#cardapio{padding-top:clamp(28px,4vw,56px)}
 
 /* Categorias */
 .cat-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:clamp(30px,5vw,80px);align-items:center}
@@ -308,7 +309,6 @@ textarea.inp{resize:vertical;min-height:70px}
 .empty-cart .orn-c svg.i{width:42px;height:42px;stroke-width:1}
 .empty-cart h3{font-family:var(--f-serif);font-weight:500;color:var(--profundo);font-size:1.6rem;margin:0 0 .3rem}
 .empty-cart p{margin:0 0 1.6rem}
-
 
 /* Cardápio com opções */
 .grid-prod{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -578,7 +578,6 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
 </head>
 <body>
 
-
 <!-- ======= Sprite de ícones e ornamentos (traço fino) ======= -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -616,7 +615,7 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
   <div class="bar">
     <a class="brand" href="#inicio" aria-label="Lazúli Confeitaria Artesanal — início"><img src="img/logo-sm.webp" alt="Logo Lazúli Confeitaria Artesanal" width="96" height="96"></a>
     <nav class="nav caps" aria-label="Menu principal">
-      <a href="#inicio">Início</a><a href="#sobre">Sobre</a><a href="#cardapio">Cardápio</a><a href="#como-pedir">Como pedir</a><a href="#contato">Contato</a>
+      <a href="#inicio">Início</a><a href="#cardapio">Cardápio</a><a href="#como-pedir">Como pedir</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a>
     </nav>
     <div class="tools">
       <button class="icon-btn" id="openCart" aria-label="Abrir sacola"><svg class="i"><use href="#bag"/></svg><span class="badge" id="badge">0</span></button>
@@ -624,7 +623,7 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
     </div>
   </div>
   <nav class="mnav caps" id="mnav" aria-label="Menu">
-    <a href="#inicio">Início</a><a href="#sobre">Sobre</a><a href="#cardapio">Cardápio</a><a href="#como-pedir">Como pedir</a><a href="#contato">Contato</a>
+    <a href="#inicio">Início</a><a href="#cardapio">Cardápio</a><a href="#como-pedir">Como pedir</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a>
   </nav>
 </header>
 
@@ -654,48 +653,6 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
       <div class="stage-foot">
         <span class="cake-name" id="cakeName" aria-live="polite"></span>
         <button class="pause" id="pauseBtn" aria-pressed="false" aria-label="Pausar animação"><svg class="i"><use href="#pause"/></svg></button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ======= Categorias ======= -->
-<section class="sec" aria-labelledby="t-cat">
-  <span class="orn float d2" style="right:3%;top:60px;width:14px;height:14px"><svg><use href="#spark"/></svg></span>
-  <div class="wrap cat-grid">
-    <div class="cat-copy reveal">
-      <p class="over">Nossa seleção</p>
-      <h2 class="title" id="t-cat">Doces para cada momento</h2>
-      <p class="lead">Do bolo de aniversário aos docinhos e salgados da festa, tudo feito sob encomenda.</p>
-      <a class="btn ghost" href="#cardapio">Ver cardápio</a>
-    </div>
-    <div class="cats reveal">
-      <a class="cat" href="#cardapio"><div class="ic"><svg class="i"><use href="#cake"/></svg></div><h3>Bolos e tortas</h3><p>Bolos em três tamanhos e tortas de vários sabores.</p></a>
-      <a class="cat" href="#cardapio"><div class="ic"><svg class="i"><use href="#bonbon"/></svg></div><h3>Docinhos</h3><p>Brigadeiro, beijinho, ninho e mais, por cento.</p></a>
-      <a class="cat" href="#cardapio"><div class="ic"><svg class="i"><use href="#pie"/></svg></div><h3>Salgados</h3><p>Salgadinhos fritos ou congelados e empadão.</p></a>
-    </div>
-  </div>
-</section>
-
-<!-- ======= Sobre ======= -->
-<section class="sec bg-gelo sec-sobre" id="sobre" aria-labelledby="t-sobre">
-  <span class="orn float sobre-branch" style="right:-20px;bottom:40px;width:200px;height:100px"><svg><use href="#branch"/></svg></span>
-  <div class="wrap about">
-    <div class="frame reveal">
-      <span class="ring"></span><span class="ring r2"></span><span class="fill"></span>
-      <span class="orn float d2" style="left:6%;top:10%;width:20px;height:20px;opacity:.8"><svg><use href="#spark"/></svg></span>
-      <span class="orn float d3" style="left:13%;top:19%;width:11px;height:11px;opacity:.8"><svg><use href="#spark"/></svg></span>
-      <img src="img/bolo-naked.webp" alt="Naked cake de chocolate com creme e morangos" loading="lazy">
-    </div>
-    <div class="reveal">
-      <p class="over">Feito à mão</p>
-      <h2 class="title" id="t-sobre">Uma confeitaria pequena, de propósito</h2>
-      <p class="lead">Cada pedido é produzido sob encomenda, em pequenas fornadas, com receitas desenvolvidas aqui.</p>
-      <div class="feats">
-        <div class="feat"><span class="ic"><svg class="i"><use href="#leaf"/></svg></span><div><h4>Ingredientes selecionados</h4><p>Escolhidos com cuidado a cada fornada.</p></div></div>
-        <div class="feat"><span class="ic"><svg class="i"><use href="#clock"/></svg></span><div><h4>Produção sob encomenda</h4><p>Seu doce é feito para o seu dia.</p></div></div>
-        <div class="feat"><span class="ic"><svg class="i"><use href="#heart"/></svg></span><div><h4>Receita própria</h4><p>Massas e recheios criados na casa.</p></div></div>
-        <div class="feat"><span class="ic"><svg class="i"><use href="#box"/></svg></span><div><h4>Entrega cuidadosa</h4><p>Embalado e levado com atenção.</p></div></div>
       </div>
     </div>
   </div>
@@ -733,6 +690,30 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
       <div class="step"><div class="n"><svg class="i"><use href="#wa"/></svg><b>3</b></div><h3>Finalize no WhatsApp</h3><p>A mensagem chega pronta. É só apertar enviar.</p></div>
     </div>
     <ul class="rules caps" id="rules"></ul>
+  </div>
+</section>
+
+<!-- ======= Sobre ======= -->
+<section class="sec sec-sobre" id="sobre" aria-labelledby="t-sobre">
+  <span class="orn float sobre-branch" style="right:-20px;bottom:40px;width:200px;height:100px"><svg><use href="#branch"/></svg></span>
+  <div class="wrap about">
+    <div class="frame reveal">
+      <span class="ring"></span><span class="ring r2"></span><span class="fill"></span>
+      <span class="orn float d2" style="left:6%;top:10%;width:20px;height:20px;opacity:.8"><svg><use href="#spark"/></svg></span>
+      <span class="orn float d3" style="left:13%;top:19%;width:11px;height:11px;opacity:.8"><svg><use href="#spark"/></svg></span>
+      <img src="img/bolo-naked.webp" alt="Naked cake de chocolate com creme e morangos" loading="lazy">
+    </div>
+    <div class="reveal">
+      <p class="over">Feito à mão</p>
+      <h2 class="title" id="t-sobre">Uma confeitaria pequena, de propósito</h2>
+      <p class="lead">Cada pedido é produzido sob encomenda, em pequenas fornadas, com receitas desenvolvidas aqui.</p>
+      <div class="feats">
+        <div class="feat"><span class="ic"><svg class="i"><use href="#leaf"/></svg></span><div><h4>Ingredientes selecionados</h4><p>Escolhidos com cuidado a cada fornada.</p></div></div>
+        <div class="feat"><span class="ic"><svg class="i"><use href="#clock"/></svg></span><div><h4>Produção sob encomenda</h4><p>Seu doce é feito para o seu dia.</p></div></div>
+        <div class="feat"><span class="ic"><svg class="i"><use href="#heart"/></svg></span><div><h4>Receita própria</h4><p>Massas e recheios criados na casa.</p></div></div>
+        <div class="feat"><span class="ic"><svg class="i"><use href="#box"/></svg></span><div><h4>Entrega cuidadosa</h4><p>Embalado e levado com atenção.</p></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
