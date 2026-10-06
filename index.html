@@ -441,6 +441,20 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
   *{transition-duration:.01ms!important}
   .cake{transition-duration:.5s!important}
 }
+/* ---------- Integração com o painel Lazúli ---------- */
+.card.off .media img{filter:grayscale(1);opacity:.55}
+.card.off .price{color:var(--texto)}
+.promo-tag{display:inline-block;margin-left:.4rem;padding:.1rem .5rem;border-radius:999px;background:var(--azul-claro);color:var(--profundo);font-size:.62rem;letter-spacing:.12em;vertical-align:middle}
+.consent{display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;color:var(--texto);margin:-.2rem 0 1rem;cursor:pointer}
+.consent input{margin-top:.2rem;accent-color:var(--azul)}
+.order-done{text-align:center;padding:2.4rem 1rem 1rem;color:var(--texto)}
+.order-done .orn-c{width:96px;height:96px;margin:0 auto 1rem;border-radius:50%;display:grid;place-items:center;background:var(--azul-claro);color:var(--azul)}
+.order-done .orn-c svg.i{width:38px;height:38px}
+.order-done h3{font-family:var(--f-serif);font-weight:500;color:var(--profundo);font-size:1.6rem;margin:0 0 .4rem}
+.order-done p{margin:0 0 .6rem}
+.order-done .btn{width:100%;margin-top:.7rem}
+.order-done .again{margin-top:1rem;background:none;border:0;color:var(--profundo);text-decoration:underline;cursor:pointer;font:inherit;font-size:.85rem}
+.d-foot .btn[aria-disabled="true"]{opacity:.6;pointer-events:none}
 </style>
 </head>
 <body>
@@ -678,12 +692,23 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
       <p>Escolha seus doces no cardápio.</p>
       <a class="btn" href="#cardapio" id="backMenu">Ver cardápio</a>
     </div>
+    <div id="orderDone" class="order-done" hidden aria-live="polite">
+      <div class="orn-c"><svg class="i"><use href="#check"/></svg></div>
+      <h3>Pedido <span id="odNum"></span> recebido!</h3>
+      <p id="odTotal"></p>
+      <p id="odInfo"></p>
+      <a class="btn" id="odPay" target="_blank" rel="noopener" hidden>Pagar com Pix agora</a>
+      <a class="btn ghost" id="odWa" target="_blank" rel="noopener"><svg class="i"><use href="#wa"/></svg> Falar sobre o pedido no WhatsApp</a>
+      <button type="button" class="again" id="odNew">Fazer outro pedido</button>
+    </div>
     <div id="filled">
       <ul class="items" id="items"></ul>
       <div class="sub"><span class="caps">Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
       <form class="form" id="form" novalidate>
         <h3>Dados do pedido</h3>
         <div class="field"><label for="f-nome">Nome</label><input class="inp" id="f-nome" name="nome" autocomplete="name" placeholder="Como podemos te chamar?"></div>
+        <div class="field" id="telField" hidden><label for="f-tel">WhatsApp</label><input class="inp" id="f-tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="(21) 99999-9999"></div>
+        <label class="consent" id="consentField" hidden><input type="checkbox" id="f-consent" name="consent"><span>Quero receber novidades e promoções da Lazúli pelo WhatsApp (opcional).</span></label>
         <div class="field"><span class="legend">Entrega ou retirada</span>
           <div class="chips" role="radiogroup" aria-label="Entrega ou retirada">
             <label class="chip"><input type="radio" name="modo" value="entrega" id="f-entrega" checked><span>Entrega</span></label>
@@ -730,11 +755,16 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
   </div>
 </aside>
 
+<script src="lazuli-connect.js"></script>
 <script>
 /* =========================================================
    CONFIGURAÇÃO — edite aqui preços, textos e dados da loja
    ========================================================= */
 const CONFIG = {
+  // Painel Lazúli (SaaS): com o endereço preenchido, cardápio, preços e disponibilidade
+  // vêm do painel e os pedidos são registrados lá. Vazio = site funciona sozinho, como antes.
+  painelApi: "https://lazuli-painel.vercel.app",  // endereço do painel
+  loja: "lazuli",
   whatsapp: "5521988932348",                 // 21 98893-2348
   whatsappTxt: "(21) 98893-2348",
   instagramUrl: "https://www.instagram.com/lazuliconfeitaria/",
@@ -753,7 +783,7 @@ const HERO = [
 
 /* Cardápio — valores do cardápio da Lazúli.
    price(o) = valor por unidade (ou por cento, se byCento) para as opções escolhidas */
-const PRODUCTS = [
+let PRODUCTS = [
   { id:"bolo", group:"Bolos", name:"Bolo de festa", cat:"Bolos", img:"img/bolo-morango.webp", fit:"contain",
     desc:"Escolha o tamanho, a massa e o recheio.", step:1, min:1,
     opts:[
@@ -948,6 +978,17 @@ $("#rules").innerHTML = CONFIG.regras.map(r => `<li>${r}</li>`).join("");
 })();
 
 /* =========================================================
+   PAINEL — carrega o cardápio do painel (quando configurado)
+   ========================================================= */
+(async function boot(){
+const CONNECTED = window.LZ ? LZ.init(CONFIG) : false;
+if (CONNECTED) {
+  const remote = await LZ.loadCatalog();
+  if (remote && remote.length) PRODUCTS = remote;
+  LZ.track("page_view", { props: { path: location.pathname } });
+}
+
+/* =========================================================
    CARDÁPIO
    ========================================================= */
 const grid = $("#grid");
@@ -1003,6 +1044,7 @@ function readOpts(card, p){
 }
 function updateCardPrice(card){
   const p = PRODUCTS.find(x => x.id === card.dataset.id), o = readOpts(card, p);
+  if(p.available === false){ $(".price", card).innerHTML = `Indisponível no momento`; return; }
   card.querySelectorAll(".opt[data-show-k]").forEach(el => { el.hidden = o[el.dataset.showK] !== el.dataset.showV; });
   if(p.mixed){
     const sum = [...card.querySelectorAll(".mv")].reduce((a,m) => a + +m.textContent, 0);
@@ -1020,7 +1062,20 @@ function updateCardPrice(card){
   const showTot = p.byCento ? true : q > 1;
   $(".price", card).innerHTML = unit + (showTot ? ` <small>· ${q} ${p.byCento ? "un." : "×"} = ${brl(tot)}</small>` : "");
 }
+PRODUCTS.forEach(p => {
+  const c = grid.querySelector(`.card[data-id="${p.id}"]`); if(!c) return;
+  if(p.promo) c.querySelector("h3").insertAdjacentHTML("beforeend", ` <span class="promo-tag">Promoção</span>`);
+  if(p.available === false){
+    c.classList.add("off");
+    const b = c.querySelector(".add"); b.disabled = true; b.querySelector(".lbl").textContent = "Indisponível";
+    c.querySelectorAll(".qty button,[data-mix]").forEach(x => x.disabled = true);
+  }
+});
 grid.querySelectorAll(".card").forEach(updateCardPrice);
+if (CONNECTED && "IntersectionObserver" in window) {
+  const vio = new IntersectionObserver(es => es.forEach(en => { if(en.isIntersecting){ LZ.track("product_view", { product: en.target.dataset.id, once: true }); vio.unobserve(en.target); } }), { threshold: .6 });
+  grid.querySelectorAll(".card").forEach(c => vio.observe(c));
+}
 
 /* ---------- Celular: filtro por categoria + ficha do produto ---------- */
 const mobileMenu = matchMedia("(max-width:640px)");
@@ -1038,6 +1093,7 @@ const sheetScrim = $("#sheetScrim");
 function openSheet(card){
   closeSheet();
   card.classList.add("open"); card.scrollTop = 0;
+  if (CONNECTED) LZ.track("product_view", { product: card.dataset.id, once: true });
   card.setAttribute("role","dialog"); card.setAttribute("aria-modal","true");
   sheetScrim.classList.add("on"); document.body.classList.add("sheet-open");
   setTimeout(() => card.querySelector(".sheet-x")?.focus(), 50);
@@ -1083,7 +1139,7 @@ grid.addEventListener("click", e => {
    SACOLA (persistida no navegador)
    ========================================================= */
 const prodOf = i => PRODUCTS.find(p => p.id === i.id);
-const validItem = i => { const p = prodOf(i); if(!p || !i.o) return false; try{ const v = p.price(i.o); return v === null || typeof v === "number"; }catch(e){ return false; } };
+const validItem = i => { const p = prodOf(i); if(!p || !i.o || p.available === false) return false; try{ const v = p.price(i.o); return v === null || typeof v === "number"; }catch(e){ return false; } };
 const Cart = {
   items: (store.get("lazuli-cart-v3") || []).filter(validItem),
   save(){ store.set("lazuli-cart-v3", this.items); renderCart(); },
@@ -1092,6 +1148,7 @@ const Cart = {
     const it = this.items.find(i => i.key === key);
     if(it) it.qty += q; else this.items.push({ key, id, o, qty:q, obs:"" });
     this.save();
+    if (CONNECTED) { LZ.track("add_to_cart", { product: id, props: { qty: q } }); LZ.cart(this.items); }
     const b = $("#badge"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
   },
   count(){ return this.items.reduce((s,i) => s + (prodOf(i).byCento ? 1 : i.qty), 0); },
@@ -1105,7 +1162,7 @@ function renderCart(){
   b.textContent = n; b.classList.toggle("on", n > 0);
   $("#openCart").setAttribute("aria-label", n ? `Abrir sacola, ${n} ${n===1?"item":"itens"}` : "Abrir sacola");
   const empty = Cart.items.length === 0;
-  $("#emptyCart").hidden = !empty; $("#filled").hidden = empty; $("#dFoot").hidden = empty;
+  $("#emptyCart").hidden = !empty || !$("#orderDone").hidden; $("#filled").hidden = empty; $("#dFoot").hidden = empty;
   itemsEl.innerHTML = Cart.items.map((i, n) => {
     const p = prodOf(i);
     return `<li class="item" data-key="${esc(i.key)}">
@@ -1130,12 +1187,13 @@ function renderCart(){
 itemsEl.addEventListener("click", e => {
   const li = e.target.closest(".item"); if(!li) return;
   const it = Cart.items.find(i => i.key === li.dataset.key), p = prodOf(it);
-  if(e.target.closest(".rm")){ Cart.items = Cart.items.filter(i => i !== it); Cart.save(); return; }
+  if(e.target.closest(".rm")){ Cart.items = Cart.items.filter(i => i !== it); Cart.save(); if (CONNECTED) { LZ.track("remove_from_cart", { product: it.id }); LZ.cart(Cart.items); } return; }
   const qb = e.target.closest("[data-q]");
   if(qb){
     const nv = it.qty + (+qb.dataset.q) * p.step;
-    if(nv < p.min){ Cart.items = Cart.items.filter(i => i !== it); } else it.qty = nv;
+    if(nv < p.min){ Cart.items = Cart.items.filter(i => i !== it); if (CONNECTED) LZ.track("remove_from_cart", { product: it.id }); } else it.qty = nv;
     Cart.save();
+    if (CONNECTED) LZ.cart(Cart.items);
   }
 });
 itemsEl.addEventListener("input", e => {
@@ -1149,13 +1207,13 @@ const form = $("#form");
 const F = id => $("#" + id);
 function saveForm(){
   store.set("lazuli-form-v1", {
-    nome:F("f-nome").value, modo:form.modo.value, end:F("f-end").value, bairro:F("f-bairro").value, ref:F("f-ref").value,
+    nome:F("f-nome").value, tel:F("f-tel").value, modo:form.modo.value, end:F("f-end").value, bairro:F("f-bairro").value, ref:F("f-ref").value,
     data:F("f-data").value, hora:F("f-hora").value, pag:form.pag.value, troco:form.troco.value, trocoVal:F("f-troco-val").value, obs:F("f-obs").value
   });
 }
 (function loadForm(){
   const d = store.get("lazuli-form-v1"); if(!d) return;
-  F("f-nome").value = d.nome||""; F("f-end").value = d.end||""; F("f-bairro").value = d.bairro||""; F("f-ref").value = d.ref||"";
+  F("f-nome").value = d.nome||""; F("f-tel").value = d.tel||""; F("f-end").value = d.end||""; F("f-bairro").value = d.bairro||""; F("f-ref").value = d.ref||"";
   F("f-data").value = d.data||""; F("f-hora").value = d.hora||""; F("f-obs").value = d.obs||"";
   if(d.modo) form.modo.value = d.modo; if(d.pag) form.pag.value = d.pag; if(d.troco) form.troco.value = d.troco; F("f-troco-val").value = d.trocoVal||"";
 })();
@@ -1170,6 +1228,7 @@ syncAddr();
 form.addEventListener("input", e => { e.target.classList?.remove("err"); syncAddr(); saveForm(); updateFinishLink(); $("#finishErr").hidden = true; });
 form.addEventListener("change", () => { syncAddr(); saveForm(); updateFinishLink(); });
 form.addEventListener("submit", e => e.preventDefault());
+form.addEventListener("focusin", () => { if (CONNECTED) LZ.track("begin_checkout", { once: true }); });
 F("f-data").min = new Date().toISOString().slice(0,10);
 
 /* ---------- Mensagem do WhatsApp ---------- */
@@ -1213,6 +1272,11 @@ $("#finish").addEventListener("click", e => {
   const need = (id, msg) => { const el = F(id); if(!el.value.trim()){ el.classList.add("err"); errs.push([el,msg]); } };
   if(!Cart.items.length) errs.push([null,"Sua sacola está vazia."]);
   need("f-nome","Informe seu nome.");
+  if (CONNECTED) {
+    need("f-tel","Informe seu WhatsApp.");
+    const tel = F("f-tel").value.replace(/\D/g,"");
+    if (tel && !/^(55)?\d{10,11}$/.test(tel)) { F("f-tel").classList.add("err"); errs.push([F("f-tel"),"WhatsApp inválido: use DDD + número."]); }
+  }
   if(form.modo.value === "entrega"){ need("f-end","Informe o endereço de entrega."); need("f-bairro","Informe o bairro."); }
   if(form.pag.value === "Dinheiro" && form.troco.value === "sim"){
     const el = F("f-troco-val"), tv = parseBRL(el.value);
@@ -1226,7 +1290,50 @@ $("#finish").addEventListener("click", e => {
     return;
   }
   updateFinishLink();   // garante a mensagem mais recente no link
+  if (CONNECTED && !sending) { e.preventDefault(); submitOnline(); }
 });
+
+/* ---------- Pedido registrado no painel ---------- */
+let sending = false;
+const PAG = { "Pix":"pix", "Dinheiro":"dinheiro", "Cartão na entrega":"cartao_entrega" };
+async function submitOnline(){
+  const btn = $("#finish"), box = $("#finishErr");
+  sending = true; btn.setAttribute("aria-disabled","true"); const old = btn.innerHTML; btn.textContent = "Enviando pedido…";
+  const d = F("f-data").value, h = F("f-hora").value;
+  const entrega = form.modo.value === "entrega";
+  const payload = {
+    source: "site",
+    customer: { name: F("f-nome").value.trim(), phone: F("f-tel").value.trim(), marketingConsent: F("f-consent").checked },
+    items: Cart.items.map(i => ({ slug: i.id, options: i.o, qty: i.qty, notes: (i.obs || "").trim() || null })),
+    fulfillment: entrega ? "entrega" : "retirada",
+    address: entrega ? { street: F("f-end").value.trim(), neighborhood: F("f-bairro").value.trim(), reference: F("f-ref").value.trim() || null } : null,
+    scheduledFor: d ? new Date(`${d}T${h || "12:00"}:00-03:00`).toISOString() : null,
+    paymentMethod: PAG[form.pag.value] || "pix",
+    changeForCents: form.pag.value === "Dinheiro" && form.troco.value === "sim" ? Math.round(parseBRL(F("f-troco-val").value) * 100) : null,
+    notes: F("f-obs").value.trim() || null
+  };
+  const waMsg = buildMessage();
+  try {
+    const r = await LZ.order(payload);
+    $("#odNum").textContent = "#" + r.number;
+    $("#odTotal").textContent = r.hasPendingPrice ? `Total parcial: ${brl(r.totalCents/100)} + itens/taxa a confirmar pela nossa equipe.` : `Total: ${brl(r.totalCents/100)}`;
+    $("#odInfo").textContent = r.paymentUrl ? "Pague com Pix pelo link abaixo. Assim que o banco confirmar, seu pedido entra na produção." : r.hasPendingPrice ? "Vamos confirmar os valores com você pelo WhatsApp." : "Vamos confirmar seu pedido pelo WhatsApp.";
+    const pay = $("#odPay"); pay.hidden = !r.paymentUrl; if (r.paymentUrl) pay.href = r.paymentUrl;
+    $("#odWa").href = waLink(waMsg.replace("Quero fazer um pedido pelo site da Lazúli ✨", `Acabei de fazer o pedido #${r.number} pelo site da Lazúli ✨`));
+    $("#orderDone").hidden = false;
+    Cart.items = []; Cart.save(); LZ.cart([]);
+    $("#dBody").scrollTop = 0;
+  } catch (err) {
+    if (err.network) {
+      box.innerHTML = "Não conseguimos registrar o pedido online agora. Toque no botão novamente para enviá-lo pelo WhatsApp.";
+      box.hidden = false; sending = true; btn.removeAttribute("aria-disabled"); btn.innerHTML = old; updateFinishLink();
+      return; // próximo toque abre o WhatsApp (fluxo original)
+    }
+    box.textContent = err.message; box.hidden = false;
+  }
+  sending = false; btn.removeAttribute("aria-disabled"); btn.innerHTML = old;
+}
+$("#odNew").addEventListener("click", () => { $("#orderDone").hidden = true; renderCart(); });
 
 /* =========================================================
    DRAWER
@@ -1278,6 +1385,19 @@ mnav.addEventListener("click", e => { if(e.target.closest("a")){ mnav.classList.
 })();
 
 renderCart();
+
+if (CONNECTED) {
+  $("#telField").hidden = false; $("#consentField").hidden = false;
+  $("#finish").innerHTML = `<svg class="i"><use href="#check"/></svg> Enviar pedido`;
+  const note = $(".d-foot .note"); if (note) note.textContent = "Seu pedido é registrado na hora. Pix pode ser pago pelo link; as demais formas, na entrega.";
+  LZ.loadConfig().then(st => {
+    if (!st) return;
+    if (st.whatsapp) { CONFIG.whatsapp = st.whatsapp; $("#fWa").href = waLink(); $("#waFloat").href = waLink(); $("#encBtn").href = waLink("Olá! Vim pelo site da Lazúli e gostaria de conversar sobre uma encomenda especial ✨"); }
+    if (st.hours) $("#fHours").textContent = st.hours;
+    if (st.rules && st.rules.length) $("#rules").innerHTML = st.rules.map(r => `<li>${esc(r)}</li>`).join("");
+  });
+}
+})();
 </script>
 
 </body>
