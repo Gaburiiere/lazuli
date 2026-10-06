@@ -373,6 +373,13 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
   .hero-branch{top:calc(env(safe-area-inset-top,0px) + 104px)!important}
   .hero{padding-top:calc(env(safe-area-inset-top,0px) + clamp(150px,18vh,180px) + 52px)}
   .hero-spark{top:170px!important}
+  .enc-branch{top:24px!important}
+  .sec-enc{padding-top:124px}
+  .sobre-branch{bottom:16px!important}
+  .sec-sobre{padding-bottom:132px}
+  .card-spark{top:36px!important}
+  .foot-branch{top:20px!important}
+  .footer{padding-top:112px}
   .about{grid-template-columns:1fr}
   .quotes{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr;gap:0;max-width:420px}
@@ -502,8 +509,8 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 </section>
 
 <!-- ======= Sobre ======= -->
-<section class="sec bg-gelo" id="sobre" aria-labelledby="t-sobre">
-  <span class="orn float" style="right:-20px;bottom:40px;width:200px;height:100px"><svg><use href="#branch"/></svg></span>
+<section class="sec bg-gelo sec-sobre" id="sobre" aria-labelledby="t-sobre">
+  <span class="orn float sobre-branch" style="right:-20px;bottom:40px;width:200px;height:100px"><svg><use href="#branch"/></svg></span>
   <div class="wrap about">
     <div class="frame reveal">
       <span class="ring"></span><span class="ring r2"></span><span class="fill"></span>
@@ -527,7 +534,7 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 
 <!-- ======= Cardápio ======= -->
 <section class="sec" id="cardapio" aria-labelledby="t-card">
-  <span class="orn float d3" style="left:4%;top:90px;width:16px;height:16px"><svg><use href="#spark"/></svg></span>
+  <span class="orn float d3 card-spark" style="left:4%;top:90px;width:16px;height:16px"><svg><use href="#spark"/></svg></span>
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="over">Do forno para você</p>
@@ -576,8 +583,8 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 -->
 
 <!-- ======= Encomendas especiais ======= -->
-<section class="sec" aria-labelledby="t-enc">
-  <span class="orn float d2" style="left:-24px;top:70px;width:180px;height:90px;transform:scaleX(-1)"><svg><use href="#branch"/></svg></span>
+<section class="sec sec-enc" aria-labelledby="t-enc">
+  <span class="orn float d2 enc-branch" style="left:-24px;top:70px;width:180px;height:90px;transform:scaleX(-1)"><svg><use href="#branch"/></svg></span>
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="over">Para dias especiais</p>
@@ -601,7 +608,7 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 
 <!-- ======= Rodapé ======= -->
 <footer class="footer" id="contato">
-  <span class="orn float" style="right:4%;top:40px;width:150px;height:75px"><svg><use href="#branch"/></svg></span>
+  <span class="orn float foot-branch" style="right:4%;top:40px;width:150px;height:75px"><svg><use href="#branch"/></svg></span>
   <span class="orn float d3" style="left:8%;top:60px;width:14px;height:14px"><svg><use href="#spark"/></svg></span>
   <div class="wrap">
     <img class="logo" src="img/logo.webp" alt="Lazúli Confeitaria Artesanal" width="150" height="150" loading="lazy">
