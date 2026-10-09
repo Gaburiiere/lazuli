@@ -866,11 +866,7 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
 <section class="sec sec-teaser" id="cardapio" aria-labelledby="t-card">
   <span class="orn float d3 card-spark" style="left:4%;top:90px;width:16px;height:16px"><svg><use href="#spark"/></svg></span>
   <div class="wrap">
-    <div class="sec-head reveal">
-      <p class="over">Do forno para você</p>
-      <h2 class="title" id="t-card">Cardápio</h2>
-      <p class="lead">Os queridinhos da casa. Todos os sabores, tamanhos e complementos estão no cardápio completo.</p>
-    </div>
+    <h2 class="sr" id="t-card">Cardápio</h2>
     <div class="menu-filter" id="menuFilter" hidden></div>
     <div class="featured" id="featured" hidden></div>
     <div class="grid-prod" id="grid" hidden></div>
@@ -1551,8 +1547,8 @@ const PAGE = document.body.dataset.page || "home";
 const FEAT = PRODUCTS.filter(p => p.badge && p.available !== false).slice(0, 10);
 const featEl = $("#featured");
 if (FEAT.length) {
-  featEl.innerHTML = `<div class="feat-head"><h3>Destaques</h3><div class="feat-nav"><button type="button" class="icon-btn" data-dir="-1" aria-label="Destaques anteriores"><svg class="i" style="transform:scaleX(-1)"><use href="#arrow"/></svg></button><button type="button" class="icon-btn" data-dir="1" aria-label="Próximos destaques"><svg class="i"><use href="#arrow"/></svg></button></div></div>
-  <div class="feat-track" tabindex="0" aria-label="Produtos em destaque">${FEAT.map(p => `<button type="button" class="feat-card" data-open="${p.id}" aria-label="Ver ${esc(p.name)}">
+  featEl.innerHTML = `<div class="feat-head"><h3>Os Mais Queridinhos</h3><div class="feat-nav"><button type="button" class="icon-btn" data-dir="-1" aria-label="Destaques anteriores"><svg class="i" style="transform:scaleX(-1)"><use href="#arrow"/></svg></button><button type="button" class="icon-btn" data-dir="1" aria-label="Próximos destaques"><svg class="i"><use href="#arrow"/></svg></button></div></div>
+  <div class="feat-track" tabindex="0" aria-label="Os mais queridinhos">${FEAT.map(p => `<button type="button" class="feat-card" data-open="${p.id}" aria-label="Ver ${esc(p.name)}">
     <span class="fc-img${p.fit === "contain" ? " fit-contain" : ""}"><img src="${p.img}" alt="" loading="lazy"></span>
     <span class="fc-body"><span class="tags">${badgeHTML(p)}</span><b>${esc(p.name)}</b><small>${esc(p.desc)}</small><span class="fc-price">${fromPriceTxt(p)}</span></span>
   </button>`).join("")}</div>`;
