@@ -1261,6 +1261,27 @@ let PRODUCTS = [
     ],
     price:o => ({"Frango":{P:12,M:35,G:45},"Frango com requeijão":{P:15,M:40,G:55},"Camarão":{P:20,M:45,G:60}})[o.sabor][o.tam] }
 ];
+/* Produtos que ainda NÃO estão cadastrados no painel (local:true).
+   Aparecem no cardápio junto com os do painel. Se o carrinho tiver algum deles, o pedido é finalizado pelo WhatsApp
+   (o painel não conhece esses itens). Quando forem cadastrados no painel com o mesmo código (id), o do painel passa a valer. */
+const EXTRA_PRODUCTS = [
+  { id:"naked-morango", group:"Bolos", name:"Naked cake de morango", cat:"Bolos", img:"img/gal-naked-morango.webp", fit:"cover", badge:"Mais pedido",
+    desc:"Massa de chocolate, creme de ninho e morangos frescos por cima.", step:1, min:1,
+    opts:[ { k:"tam", label:"Tamanho", type:"chips", values:[{v:"15 cm",sub:"15 a 20 fatias"},{v:"20 cm",sub:"20 a 25 fatias"}] } ],
+    price:o => ({"15 cm":110,"20 cm":140})[o.tam] },
+  { id:"merengue-morango", group:"Bolos", name:"Bolo de merengue com morango", cat:"Bolos", img:"img/gal-merengue-morango.webp", fit:"cover", badge:"Oferta", oldPrice:139.9,
+    desc:"Camadas de baunilha, creme de morango e merengue maçaricado. Tamanho 15 cm.", step:1, min:1, opts:[], price:() => 119.9 },
+  { id:"kit-festa", group:"Kits", name:"Kit festa: bolo 15 cm + 50 docinhos", cat:"Kits para festa", img:"img/card-docinhos.webp", fit:"cover", badge:"Oferta", oldPrice:170,
+    desc:"Bolo de festa de 15 cm com o recheio que você escolher e 50 docinhos sortidos.", step:1, min:1,
+    opts:[ { k:"rech", label:"Recheio do bolo", type:"select", values:["Brigadeiro","Ninho","Doce de leite","Ninho com morango"] } ], price:() => 150 },
+  { id:"churros", group:"Doces", name:"Churros com doce de leite", cat:"Doces", img:"img/gal-churros.webp", fit:"cover", badge:"Novidade",
+    desc:"Caixa com 10 mini churros passados no açúcar e canela, com potinho de doce de leite.", step:1, min:1, opts:[], price:() => 25 },
+  { id:"madeleines", group:"Doces", name:"Madeleines com calda", cat:"Doces", img:"img/gal-madeleines.webp", fit:"cover", badge:"Edição limitada",
+    desc:"Caixa com 6 madeleines amanteigadas e calda de frutas vermelhas.", step:1, min:1, opts:[], price:() => 22 },
+  { id:"docinhos-tematicos", group:"Doces", name:"Docinhos temáticos", cat:"Docinhos · 15 g", img:"img/gal-docinhos.webp", fit:"cover",
+    desc:"Brigadeiros decorados no tema da sua festa. Pedido mínimo de 50 unidades.", byCento:true, step:50, min:50, opts:[], price:() => 120 }
+].map(p => Object.assign(p, { local:true }));
+PRODUCTS = PRODUCTS.concat(EXTRA_PRODUCTS);
 /* Selos dos produtos (EDITAR): "Mais pedido", "Oferta", "Novidade" ou "Edição limitada". oldPrice = preço antigo (mostra o desconto). */
 const SELOS = { bolo:{ badge:"Mais pedido" }, docinhos:{ badge:"Mais pedido" } };
 const unitTxt = p => p.byCento ? "o cento" : "cada";
@@ -1416,7 +1437,7 @@ $("#rules").innerHTML = CONFIG.regras.map(r => `<li>${r}</li>`).join("");
 const CONNECTED = window.LZ ? LZ.init(CONFIG) : false;
 if (CONNECTED) {
   const remote = await LZ.loadCatalog();
-  if (remote && remote.length) PRODUCTS = remote;
+  if (remote && remote.length) PRODUCTS = remote.concat(EXTRA_PRODUCTS.filter(x => !remote.some(r => r.id === x.id)));
   LZ.track("page_view", { props: { path: location.pathname } });
 }
 
@@ -1693,7 +1714,8 @@ const Cart = {
   },
   count(){ return this.items.reduce((s,i) => s + (prodOf(i).byCento ? 1 : i.qty), 0); },
   total(){ return this.items.reduce((s,i) => s + (lineTotal(prodOf(i), i.o, i.qty, i.a) || 0), 0); },
-  hasOpen(){ return this.items.some(i => lineTotal(prodOf(i), i.o, i.qty, i.a) == null); }
+  hasOpen(){ return this.items.some(i => lineTotal(prodOf(i), i.o, i.qty, i.a) == null); },
+  hasLocal(){ return this.items.some(i => { const p = prodOf(i); return p && p.local; }); }
 };
 
 const itemsEl = $("#items");
@@ -2059,7 +2081,7 @@ var Checkout = (() => {
   const etaTxt = m => m >= 60 ? `${Math.floor(m/60)}h${m % 60 ? pad2(m % 60) : ""}` : `${m} min`;
 
   /* Bairro sem taxa definida → o pedido é finalizado direto pelo WhatsApp */
-  const waOnly = () => delivery() && STORE.zones.length > 0 && !!F("f-bairro").value.trim() && !zone();
+  const waOnly = () => Cart.hasLocal() || (delivery() && STORE.zones.length > 0 && !!F("f-bairro").value.trim() && !zone());
   function syncButton(){
     if(!CONNECTED) return;
     const wa = waOnly(), btn = $("#finish"), note = $(".d-foot .note");
@@ -2142,8 +2164,9 @@ var Checkout = (() => {
   }
   function refresh(){
     clearTimeout(timer);
-    render();
+    syncButton(); render();
     if(!CONNECTED || !Cart.items.length) return;
+    if(Cart.hasLocal()){ quote = null; render(); return; }   /* itens fora do painel: sem orçamento do painel, finaliza no WhatsApp */
     if(unsupported){ if(coupon.code && coupon.state == null){ coupon.state = "check"; coupon.msg = "Vamos conferir o cupom quando o pedido for registrado."; couponUI(); } return; }
     const my = ++seq, hadCoupon = coupon.code && coupon.state !== "bad";
     LZ.quote(payload()).then(q => {
