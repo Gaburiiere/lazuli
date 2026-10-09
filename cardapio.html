@@ -1268,7 +1268,7 @@ const EXTRA_PRODUCTS = [
 ].map(p => Object.assign(p, { local:true }));
 PRODUCTS = PRODUCTS.concat(EXTRA_PRODUCTS);
 /* Selos dos produtos (EDITAR): "Mais pedido", "Oferta", "Novidade" ou "Edição limitada". oldPrice = preço antigo (mostra o desconto). */
-const SELOS = { bolo:{ badge:"Mais pedido" }, docinhos:{ badge:"Mais pedido" } };
+const SELOS = { bolo:{ badge:"Mais pedido" }, docinhos:{ badge:"Mais pedido" }, "naked-morango":{ badge:"Mais pedido" }, "merengue-morango":{ badge:"Oferta" }, "kit-festa":{ badge:"Oferta" }, churros:{ badge:"Novidade" }, madeleines:{ badge:"Edição limitada" } };
 const unitTxt = p => p.byCento ? "o cento" : "cada";
 const addonsOf = (p, a) => (p.addons || []).filter(x => (a || []).includes(x.id));
 const unitOf = (p, o, a) => { const v = p.price(o); if(v == null) return null; let s = v; for(const x of addonsOf(p, a)){ if(x.price == null) return null; s += x.price; } return s; };
@@ -1577,7 +1577,7 @@ function updateCardPrice(card){
 }
 PRODUCTS.forEach(p => {
   const c = grid.querySelector(`.card[data-id="${p.id}"]`); if(!c) return;
-  if(p.promo) c.querySelector("h3").insertAdjacentHTML("beforeend", ` <span class="promo-tag">Promoção</span>`);
+  if(p.promo && !p.badge) c.querySelector("h3").insertAdjacentHTML("beforeend", ` <span class="promo-tag">Promoção</span>`);
   if(p.available === false){
     c.classList.add("off");
     const b = c.querySelector(".add"); b.disabled = true; b.querySelector(".lbl").textContent = "Indisponível";

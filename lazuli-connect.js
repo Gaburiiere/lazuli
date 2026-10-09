@@ -65,6 +65,7 @@
         id: p.slug, _pid: p.id, group: p.group, name: p.name, cat: p.subtitle || p.category || "", img: p.image || "", fit: p.fit || "cover",
         desc: p.description || "", step: p.step, min: p.min, byCento: p.soldBy === "cento",
         mixed: (p.options || []).some(function (g) { return g.type === "mix"; }),
+        oldPrice: (p.promoPriceCents != null && p.basePriceCents != null && p.basePriceCents > p.promoPriceCents) ? p.basePriceCents / 100 : undefined,
         available: p.available !== false, promo: p.promoPriceCents != null || (p.variants || []).some(function (v) { return v.promoPriceCents != null; }),
         opts: (p.options || []).map(function (g) {
           return {
