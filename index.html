@@ -1335,7 +1335,7 @@ $("#rules").innerHTML = CONFIG.regras.map(r => `<li>${r}</li>`).join("");
     stage.appendChild(im); cakes.push(im);
     const b = document.createElement("button");
     b.className = "thumb"; b.type = "button"; b.setAttribute("aria-label", "Mostrar " + c.name);
-    b.innerHTML = `<img src="${c.thumb}" alt=""><span class="num">${String(i+1).padStart(2,"0")}</span>`;
+    b.innerHTML = `<img src="${c.thumb}" alt="">`;
     b.addEventListener("click", () => goTo(i, true));
     stage.appendChild(b); thumbs.push(b);
   });
