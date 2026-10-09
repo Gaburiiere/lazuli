@@ -1516,9 +1516,8 @@ const cardHTML = p => `
 const GROUPS = [...new Set(PRODUCTS.map(p => p.group))];
 grid.innerHTML = GROUPS.map(g => { const list = PRODUCTS.filter(p => p.group === g);
   return `<section class="grp" data-group="${esc(g)}" aria-label="${esc(g)}"><header class="grp-head"><h3>${esc(g)}</h3><span class="caps">${list.length} ${list.length === 1 ? "item" : "itens"}</span></header><div class="grp-list">${list.map(cardHTML).join("")}</div></section>`; }).join("");
-/* Destaques: carrossel (selo primeiro) */
-const _av = PRODUCTS.filter(p => p.available !== false && p.img);
-const FEAT = [..._av.filter(p => p.badge), ..._av.filter(p => !p.badge)].slice(0, 8); /* primeiro os com selo, depois completa com o resto do cardápio */
+/* Destaques: carrossel com os produtos que têm selo */
+const FEAT = PRODUCTS.filter(p => p.badge && p.available !== false).slice(0, 10);
 const featEl = $("#featured");
 if (FEAT.length) {
   featEl.innerHTML = `<div class="feat-head"><h3>Destaques</h3><div class="feat-nav"><button type="button" class="icon-btn" data-dir="-1" aria-label="Destaques anteriores"><svg class="i" style="transform:scaleX(-1)"><use href="#arrow"/></svg></button><button type="button" class="icon-btn" data-dir="1" aria-label="Próximos destaques"><svg class="i"><use href="#arrow"/></svg></button></div></div>
