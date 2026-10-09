@@ -1183,8 +1183,8 @@ const CONFIG = {
   // vêm do painel e os pedidos são registrados lá. Vazio = site funciona sozinho, como antes.
   painelApi: "https://lazuli-painel.vercel.app",  // endereço do painel
   loja: "lazuli",
-  whatsapp: "5521988932348",                 // 21 98893-2348
-  whatsappTxt: "(21) 98893-2348",
+  whatsapp: "5521984822196",                 // 21 98482-2196
+  whatsappTxt: "(21) 98482-2196",
   instagramUrl: "https://www.instagram.com/lazuliconfeitaria/",
   instagramTxt: "@lazuliconfeitaria",
   endereco: "Rio de Janeiro · RJ<br>Endereço completo a confirmar",   // EDITAR
@@ -2271,7 +2271,8 @@ function applyConfig(st){
   // contatos
   if(st.whatsapp){
     const n = String(st.whatsapp).replace(/\D/g,"");
-    if(n.length >= 10){
+    /* número antigo ainda salvo no painel é ignorado: o site usa o número novo do CONFIG */
+    if(n.length >= 10 && !/988932348$/.test(n)){
       CONFIG.whatsapp = n.length <= 11 ? "55" + n : n;
       $("#fWa").href = waLink(); $("#waFloat").href = waLink(); $("#fWaTxt").textContent = fmtTel(CONFIG.whatsapp);
       $("#encBtn").href = waLink("Olá! Vim pelo site da Lazúli e gostaria de conversar sobre uma encomenda especial ✨");
