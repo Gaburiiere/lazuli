@@ -1186,8 +1186,8 @@ const CONFIG = {
   loja: "lazuli",
   whatsapp: "5521984822196",                 // 21 98482-2196
   whatsappTxt: "(21) 98482-2196",
-  instagramUrl: "https://www.instagram.com/lazuliconfeitaria/",
-  instagramTxt: "@lazuliconfeitaria",
+  instagramUrl: "https://www.instagram.com/confeitarialazuli/",
+  instagramTxt: "@confeitarialazuli",
   endereco: "Rio de Janeiro · RJ<br>Endereço completo a confirmar",   // EDITAR
   horario: "Atendimento sob encomenda<br>Horários pelo WhatsApp",     // EDITAR
   regras: ["Pedido mínimo a combinar","Encomendas com antecedência","Taxa de entrega conforme o bairro","Consulte os bairros atendidos"], // EDITAR
@@ -2288,7 +2288,8 @@ function applyConfig(st){
   syncContacts();
   if(st.instagram){
     const ig = String(st.instagram).trim(), h = ig.replace(/^https?:\/\/(www\.)?instagram\.com\//i,"").replace(/^@/,"").replace(/[/?#].*$/,"");
-    if(/^[\w.]{1,30}$/.test(h)){ $("#fIg").href = `https://www.instagram.com/${h}/`; $("#fIgTxt").textContent = "@" + h; syncContacts(); }
+    /* @ antigo ainda salvo no painel é ignorado: o site usa o Instagram novo do CONFIG */
+    if(/^[\w.]{1,30}$/.test(h) && h.toLowerCase() !== "lazuliconfeitaria"){ $("#fIg").href = `https://www.instagram.com/${h}/`; $("#fIgTxt").textContent = "@" + h; syncContacts(); }
   }
   if(typeof st.address === "string" && st.address.trim()) $("#fAddr").textContent = st.address.trim();
   // horários
