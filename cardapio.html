@@ -1252,47 +1252,6 @@ const HERO = [
 /* Cardápio — valores do cardápio da Lazúli.
    price(o) = valor por unidade (ou por cento, se byCento) para as opções escolhidas */
 let PRODUCTS = [
-  /* ===================== PRONTO ENTREGA ===================== */
-  { id:"pe-salgadinhos", group:"Pronto entrega", name:"Salgadinhos tradicionais", cat:"Pronto entrega · por cento", img:"img/nt-salg-trad.webp", fit:"cover",
-    desc:"Monte seu cento misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:50, min:50, mixed:true,
-    opts:[
-      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Coxinha","Croquete de calabresa","Travesseiro de carne","Queijo com presunto","Queijo com alho","Bolinha de queijo"] },
-      { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
-    ],
-    price:o => o.prep === "Frito" ? 85 : 80 },
-  { id:"pe-salgadinhos-esp", group:"Pronto entrega", name:"Salgadinhos especiais", cat:"Pronto entrega · por cento", img:"img/nt-salgadinhos.webp", fit:"cover",
-    desc:"Risole de camarão, kibe e calabresa especial. Monte seu cento misturando os sabores.", byCento:true, step:50, min:50, mixed:true,
-    opts:[
-      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Risole de camarão","Kibe","Calabresa especial"] },
-      { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
-    ],
-    price:o => o.prep === "Frito" ? 90 : 85 },
-  { id:"pe-empadao", group:"Pronto entrega", name:"Empadão", cat:"Pronto entrega", img:"img/nt-empadao3.webp", fit:"cover",
-    desc:"Frango, frango com requeijão ou camarão.", step:1, min:1,
-    opts:[
-      { k:"sabor", label:"Sabor", type:"chips", values:[{v:"Frango"},{v:"Frango com requeijão"},{v:"Camarão"}] },
-      { k:"tam", label:"Tamanho", type:"chips", values:[{v:"P"},{v:"M"},{v:"G"},{v:"GG"}] }
-    ],
-    price:o => ({"Frango":{P:12,M:30,G:40,GG:60},"Frango com requeijão":{P:15,M:35,G:45,GG:65},"Camarão":{P:25,M:50,G:70,GG:90}})[o.sabor][o.tam] },
-  { id:"pe-brownie", group:"Pronto entrega", name:"Brownie (fatia)", cat:"Pronto entrega", img:"img/card-brownie.webp", fit:"cover",
-    desc:"Fatia de brownie com casquinha crocante.", step:1, min:1, opts:[], price:() => 0 },
-  { id:"pe-cookie", group:"Pronto entrega", name:"Cookie", cat:"Pronto entrega", img:"img/nt-cookie2.webp", fit:"cover",
-    desc:"Cookie artesanal com gotas de chocolate.", step:1, min:1, opts:[], price:() => 0 },
-  { id:"pe-torta-cookie", group:"Pronto entrega", name:"Torta cookie", cat:"Pronto entrega", img:"img/nt-tortacookie.webp", fit:"cover",
-    desc:"Torta de cookie recheada, coberta com chocolate.", step:1, min:1, opts:[], price:() => 180 },
-  { id:"pe-holandesa", group:"Pronto entrega", name:"Torta holandesa", cat:"Pronto entrega", img:"img/nt-holandesa2.webp", fit:"cover",
-    desc:"Creme holandês, base de biscoito e cobertura de chocolate.", step:1, min:1, opts:[], price:() => 180 },
-  { id:"pe-limao", group:"Pronto entrega", name:"Torta de limão", cat:"Pronto entrega", img:"img/nt-limao.webp", fit:"cover",
-    desc:"Creme de limão azedinho com suspiro.", step:1, min:1, opts:[], price:() => 85 },
-  { id:"pe-banoffee", group:"Pronto entrega", name:"Banoffee na travessa", cat:"Pronto entrega", img:"img/nt-banoffee.webp", fit:"cover",
-    desc:"Doce de leite, banana, chantilly e raspas de chocolate.", step:1, min:1,
-    opts:[ { k:"tam", label:"Tamanho", type:"chips", values:[{v:"P"},{v:"M"}] } ],
-    price:o => o.tam === "M" ? 83 : 43 },
-  { id:"pe-bolo-pote", group:"Pronto entrega", name:"Bolo de pote", cat:"Pronto entrega", img:"img/nt-bolopote.webp", fit:"cover",
-    desc:"Camadas de bolo e recheio cremoso no potinho.", step:1, min:1,
-    opts:[ { k:"sabor", label:"Sabor", type:"select", values:["Cookies and cream","Ninho com morango","Beijinho","Brigadeiro com morango","Chocolate"] } ],
-    price:() => 15 },
-
   /* ======================== CARDÁPIO DE NATAL (encomenda) ======================== */
   { id:"en-salgadinhos", group:"Cardápio de Natal", name:"Salgadinhos tradicionais", cat:"Natal · por cento", img:"img/nt-salg-trad.webp", fit:"cover",
     desc:"Monte seu cento misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:50, min:50, mixed:true,
@@ -1351,7 +1310,48 @@ let PRODUCTS = [
   { id:"en-taca", group:"Cardápio de Natal", name:"Taça natalina", cat:"Natal", img:"img/nt-taca2.webp", fit:"cover",
     desc:"Camadas de creme e fruta. Morango ou uva.", step:1, min:1,
     opts:[ { k:"sabor", label:"Fruta", type:"chips", values:[{v:"Morango"},{v:"Uva"}] } ],
-    price:() => 80 }
+    price:() => 80 },
+
+  /* ===================== PRONTO ENTREGA ===================== */
+  { id:"pe-salgadinhos", group:"Pronto entrega", name:"Salgadinhos tradicionais", cat:"Pronto entrega · por cento", img:"img/nt-salg-trad.webp", fit:"cover",
+    desc:"Monte seu cento misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:50, min:50, mixed:true,
+    opts:[
+      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Coxinha","Croquete de calabresa","Travesseiro de carne","Queijo com presunto","Queijo com alho","Bolinha de queijo"] },
+      { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
+    ],
+    price:o => o.prep === "Frito" ? 85 : 80 },
+  { id:"pe-salgadinhos-esp", group:"Pronto entrega", name:"Salgadinhos especiais", cat:"Pronto entrega · por cento", img:"img/nt-salgadinhos.webp", fit:"cover",
+    desc:"Risole de camarão, kibe e calabresa especial. Monte seu cento misturando os sabores.", byCento:true, step:50, min:50, mixed:true,
+    opts:[
+      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Risole de camarão","Kibe","Calabresa especial"] },
+      { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
+    ],
+    price:o => o.prep === "Frito" ? 90 : 85 },
+  { id:"pe-empadao", group:"Pronto entrega", name:"Empadão", cat:"Pronto entrega", img:"img/nt-empadao3.webp", fit:"cover",
+    desc:"Frango, frango com requeijão ou camarão.", step:1, min:1,
+    opts:[
+      { k:"sabor", label:"Sabor", type:"chips", values:[{v:"Frango"},{v:"Frango com requeijão"},{v:"Camarão"}] },
+      { k:"tam", label:"Tamanho", type:"chips", values:[{v:"P"},{v:"M"},{v:"G"},{v:"GG"}] }
+    ],
+    price:o => ({"Frango":{P:12,M:30,G:40,GG:60},"Frango com requeijão":{P:15,M:35,G:45,GG:65},"Camarão":{P:25,M:50,G:70,GG:90}})[o.sabor][o.tam] },
+  { id:"pe-brownie", group:"Pronto entrega", name:"Brownie (fatia)", cat:"Pronto entrega", img:"img/card-brownie.webp", fit:"cover",
+    desc:"Fatia de brownie com casquinha crocante.", step:1, min:1, opts:[], price:() => 0 },
+  { id:"pe-cookie", group:"Pronto entrega", name:"Cookie", cat:"Pronto entrega", img:"img/nt-cookie2.webp", fit:"cover",
+    desc:"Cookie artesanal com gotas de chocolate.", step:1, min:1, opts:[], price:() => 0 },
+  { id:"pe-torta-cookie", group:"Pronto entrega", name:"Torta cookie", cat:"Pronto entrega", img:"img/nt-tortacookie.webp", fit:"cover",
+    desc:"Torta de cookie recheada, coberta com chocolate.", step:1, min:1, opts:[], price:() => 180 },
+  { id:"pe-holandesa", group:"Pronto entrega", name:"Torta holandesa", cat:"Pronto entrega", img:"img/nt-holandesa2.webp", fit:"cover",
+    desc:"Creme holandês, base de biscoito e cobertura de chocolate.", step:1, min:1, opts:[], price:() => 180 },
+  { id:"pe-limao", group:"Pronto entrega", name:"Torta de limão", cat:"Pronto entrega", img:"img/nt-limao.webp", fit:"cover",
+    desc:"Creme de limão azedinho com suspiro.", step:1, min:1, opts:[], price:() => 85 },
+  { id:"pe-banoffee", group:"Pronto entrega", name:"Banoffee na travessa", cat:"Pronto entrega", img:"img/nt-banoffee.webp", fit:"cover",
+    desc:"Doce de leite, banana, chantilly e raspas de chocolate.", step:1, min:1,
+    opts:[ { k:"tam", label:"Tamanho", type:"chips", values:[{v:"P"},{v:"M"}] } ],
+    price:o => o.tam === "M" ? 83 : 43 },
+  { id:"pe-bolo-pote", group:"Pronto entrega", name:"Bolo de pote", cat:"Pronto entrega", img:"img/nt-bolopote.webp", fit:"cover",
+    desc:"Camadas de bolo e recheio cremoso no potinho.", step:1, min:1,
+    opts:[ { k:"sabor", label:"Sabor", type:"select", values:["Cookies and cream","Ninho com morango","Beijinho","Brigadeiro com morango","Chocolate"] } ],
+    price:() => 15 }
 ].map(p => Object.assign(p, { local:true }));
 const EXTRA_PRODUCTS = [];
 /* Selos dos produtos (EDITAR): "Mais pedido", "Oferta", "Novidade" ou "Edição limitada". oldPrice = preço antigo (mostra o desconto). */
