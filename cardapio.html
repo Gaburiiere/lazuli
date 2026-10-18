@@ -1069,7 +1069,7 @@ body.page-menu{background:linear-gradient(180deg,#eef5fb 0,#f6f9fc 520px)}
     </div>
     <div class="fbottom">
       <p class="copy">© <span id="year"></span> Lazúli Confeitaria Artesanal. Todos os direitos reservados.</p>
-      <nav class="foot-links" aria-label="Privacidade"><a href="privacidade.html">Política de privacidade</a><button type="button" id="cookiePrefs">Preferências de cookies</button></nav>
+      <nav class="foot-links" aria-label="Privacidade"><a href="privacidade">Política de privacidade</a><button type="button" id="cookiePrefs">Preferências de cookies</button></nav>
       <p class="made">Feito à mão com <span aria-hidden="true">💙</span><span class="sr">carinho</span> no Rio de Janeiro</p>
     </div>
     <p class="foot-msg" id="cookieMsg" hidden aria-live="polite"></p>
@@ -1627,7 +1627,7 @@ if (FEAT.length) {
   const tr = featEl.querySelector(".feat-track");
   featEl.addEventListener("click", e => {
     const nb = e.target.closest("[data-dir]"); if(nb){ tr.scrollBy({ left: +nb.dataset.dir * tr.clientWidth * .8, behavior: reduce.matches ? "auto" : "smooth" }); return; }
-    const fc = e.target.closest("[data-open]"); if(fc && PAGE === "home"){ location.href = "cardapio.html#p=" + encodeURIComponent(fc.dataset.open); return; }
+    const fc = e.target.closest("[data-open]"); if(fc && PAGE === "home"){ location.href = "cardapio#p=" + encodeURIComponent(fc.dataset.open); return; }
     if(fc){ const c = grid.querySelector(`.card[data-id="${fc.dataset.open}"]`); if(c){ c.hidden = false; openSheet(c); } }
   });
 }
@@ -2754,7 +2754,7 @@ var MenuPage = (PAGE !== "menu") ? null : (() => {
     bar.classList.remove("pop"); void bar.offsetWidth; bar.classList.add("pop");
     if(bar.hidden) Drawer.open(2000);
   }
-  /* abre um produto vindo da página inicial (cardapio.html#p=bolo) */
+  /* abre um produto vindo da página inicial (cardapio#p=bolo) */
   const m = location.hash.match(/^#p=(.+)$/);
   if(m){ const c = grid.querySelector(`.card[data-id="${CSS.escape(decodeURIComponent(m[1]))}"]`); if(c) setTimeout(() => { c.scrollIntoView({ block:"center" }); openSheet(c); }, 350); }
   return { go, render, added };
