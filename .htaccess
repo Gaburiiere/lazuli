@@ -17,6 +17,8 @@ RewriteRule ^(.+?)/?$ $1.html [L]
 
 # Sempre conferir se há versão nova das páginas (evita o navegador mostrar o site antigo)
 <IfModule mod_headers.c>
+  # Navegador passa a abrir sempre com cadeado (https)
+  Header always set Strict-Transport-Security "max-age=31536000"
   <FilesMatch "\.(html|js|css)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
