@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" type="image/webp" href="img/logo-sm.webp">
 <meta property="og:title" content="Lazúli Confeitaria Artesanal">
-<meta property="og:description" content="Bolos, docinhos e salgados sob encomenda. Monte seu pedido e finalize pelo WhatsApp.">
+<meta property="og:description" content="Bolos, docinhos e salgados sob encomenda. Monte seu pedido e envie pelo site.">
 <meta property="og:image" content="img/logo.webp">
 <meta name="theme-color" content="#ffffff">
 <title>Lazúli Confeitaria Artesanal</title>
-<meta name="description" content="Lazúli Confeitaria Artesanal — bolos e doces finos sob encomenda. Monte seu pedido e finalize pelo WhatsApp.">
+<meta name="description" content="Lazúli Confeitaria Artesanal — bolos e doces finos sob encomenda. Monte seu pedido e envie pelo site.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap">
@@ -1171,7 +1171,7 @@ body.sheet-open .wa-float{opacity:0;pointer-events:none}
     </div>
   </div>
   <div class="d-foot" id="dFoot">
-    <a class="btn" id="finish" href="#" target="_blank" rel="noopener"><svg class="i"><use href="#wa"/></svg> Finalizar pedido no WhatsApp</a>
+    <a class="btn" id="finish" href="#" target="_blank" rel="noopener"><svg class="i"><use href="#check"/></svg> Enviar pedido</a>
     <p class="msg-err" id="finishErr" hidden></p>
     <p class="note">A conversa abre com a mensagem pronta. Nada é enviado sem você.</p>
   </div>
@@ -1323,7 +1323,7 @@ let PRODUCTS = [
     desc:"Camadas de bolo e recheio cremoso no potinho.", step:1, min:1,
     opts:[ { k:"sabor", label:"Sabor", type:"select", values:["Cookies and cream","Ninho com morango","Beijinho","Brigadeiro com morango","Chocolate"] } ],
     price:() => 15 }
-].map(p => Object.assign(p, { local:true }));
+];  /* pedidos vão para o painel (mesmos códigos/slug do painel) */
 const EXTRA_PRODUCTS = [];
 /* Selos dos produtos (EDITAR): "Mais pedido", "Oferta", "Novidade" ou "Edição limitada". oldPrice = preço antigo (mostra o desconto). */
 const SELOS = { "en-bolo":{ badge:"Mais pedido" }, "pe-salgadinhos":{ badge:"Mais pedido" }, "en-rabanada":{ badge:"Novidade" }, "en-guirlanda":{ badge:"Novidade" }, "en-pave":{ badge:"Novidade" }, "en-taca":{ badge:"Novidade" }, "pe-holandesa":{ badge:"Mais pedido" } };
@@ -1946,8 +1946,8 @@ async function submitOnline(){
     $("#dBody").scrollTop = 0;
   } catch (err) {
     if (err.network) {
-      box.innerHTML = "Não conseguimos registrar o pedido online agora. Toque no botão novamente para enviá-lo pelo WhatsApp.";
-      box.hidden = false; sending = true; btn.removeAttribute("aria-disabled"); btn.innerHTML = old; updateFinishLink();
+      box.innerHTML = "Nosso sistema de pedidos está instável agora. Para não perder seu pedido, toque no botão de novo e ele será enviado pelo WhatsApp.";
+      box.hidden = false; sending = true; btn.removeAttribute("aria-disabled"); btn.dataset.mode = "wa"; btn.innerHTML = `<svg class="i"><use href="#wa"/></svg> Enviar pelo WhatsApp`; updateFinishLink();
       return; // próximo toque abre o WhatsApp (fluxo original)
     }
     box.textContent = err.message; box.hidden = false;
@@ -2131,11 +2131,10 @@ var Checkout = (() => {
   const delivery = () => form.modo.value === "entrega";
   const etaTxt = m => m >= 60 ? `${Math.floor(m/60)}h${m % 60 ? pad2(m % 60) : ""}` : `${m} min`;
 
-  /* Bairro sem taxa definida → o pedido é finalizado direto pelo WhatsApp */
-  const waOnly = () => Cart.hasLocal() || (delivery() && STORE.zones.length > 0 && !!F("f-bairro").value.trim() && !zone());
+  /* Todos os pedidos vão para o painel. WhatsApp só como reserva, se o painel estiver fora do ar. */
+  const waOnly = () => Cart.hasLocal();
   function syncButton(){
-    if(!CONNECTED) return;
-    const wa = waOnly(), btn = $("#finish"), note = $(".d-foot .note");
+    const wa = !CONNECTED || waOnly(), btn = $("#finish"), note = $(".d-foot .note");
     if(btn.dataset.mode === (wa ? "wa" : "online")) return;
     btn.dataset.mode = wa ? "wa" : "online";
     btn.innerHTML = wa ? `<svg class="i"><use href="#wa"/></svg> Finalizar pelo WhatsApp` : `<svg class="i"><use href="#check"/></svg> Enviar pedido`;
@@ -2153,7 +2152,7 @@ var Checkout = (() => {
       if(z.etaMinutes) p.push(`cerca de ${etaTxt(z.etaMinutes)}`);
       if(z.minOrderCents) p.push(`pedido mínimo ${brl(z.minOrderCents/100)}`);
       line.innerHTML = `<span>${p.join(` <span class="sep" aria-hidden="true">·</span> `)}</span>`;
-    } else line.textContent = "Ainda não temos taxa para esse bairro. Finalize pelo WhatsApp que combinamos a entrega e o pagamento por lá.";
+    } else line.textContent = "Ainda não temos taxa para esse bairro. Envie o pedido normalmente: a gente confirma a taxa de entrega com você.";
     line.hidden = false;
   }
   function payload(){
