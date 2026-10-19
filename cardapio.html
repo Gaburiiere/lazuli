@@ -1311,7 +1311,7 @@ let PRODUCTS = [
     desc:"Doce de leite, banana, chantilly e raspas de chocolate.", step:1, min:1,
     opts:[ { k:"tam", label:"Tamanho", type:"chips", values:[{v:"P"},{v:"M"}] } ],
     price:o => o.tam === "M" ? 83 : 43 },
-  { id:"en-eclair", group:"Cardápio de Natal", name:"Eclair", cat:"Natal", icon:"bonbon",
+  { id:"en-eclair", group:"Cardápio de Natal", name:"Eclair", cat:"Natal", img:"img/nt-eclair.webp", fit:"cover",
     desc:"Massa leve e recheio cremoso, com cobertura de chocolate.", step:1, min:1, opts:[], price:() => 10 },
   { id:"en-taca", group:"Cardápio de Natal", name:"Taça natalina", cat:"Natal", img:"img/nt-taca2.webp", fit:"cover",
     desc:"Camadas de creme e fruta. Morango ou uva.", step:1, min:1,
