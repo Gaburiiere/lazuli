@@ -6,6 +6,7 @@
 <title>Lazúli Confeitaria Artesanal</title>
 <meta name="description" content="Bolos e doces feitos à mão em Guadalupe, Rio de Janeiro. Faça sua encomenda ou fale com a Lazúli no WhatsApp.">
 <meta name="theme-color" content="#d6e8f7">
+<meta name="color-scheme" content="only light">
 <meta property="og:title" content="Lazúli Confeitaria Artesanal">
 <meta property="og:description" content="Faça sua encomenda ou fale com a gente no WhatsApp.">
 <meta property="og:image" content="https://confeitarialazuli.com.br/img/logo.webp">
@@ -27,19 +28,10 @@
     --sombra:rgba(47,100,150,.14);
     --serif:"Cormorant", Georgia, "Times New Roman", serif;
     --sans:"Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme:light;
     box-sizing:border-box;
     padding-top:env(safe-area-inset-top,0px);
     padding-bottom:env(safe-area-inset-bottom,0px);
-  }
-  @media (prefers-color-scheme:dark){
-    :root:not([data-theme="light"]){
-      --fundo:#14263a;--caixa:#1b3249;--mancha-1:#24405c;--mancha-2:#183048;--mancha-3:#1f3a55;
-      --botao:#25415d;--miniatura:#2e4f70;--texto:#e6f0f9;--suave:#b4c9dc;--sombra:rgba(0,0,0,.3);
-    }
-  }
-  :root[data-theme="dark"]{
-    --fundo:#14263a;--caixa:#1b3249;--mancha-1:#24405c;--mancha-2:#183048;--mancha-3:#1f3a55;
-    --botao:#25415d;--miniatura:#2e4f70;--texto:#e6f0f9;--suave:#b4c9dc;--sombra:rgba(0,0,0,.3);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{min-height:100%}
@@ -119,7 +111,7 @@
   </a>
 
   <nav aria-label="Links da Lazúli">
-    <a class="botao" href="https://confeitarialazuli.com.br/cardapio" target="_blank" rel="noopener">
+    <a class="botao" href="https://confeitarialazuli.com.br/" target="_blank" rel="noopener">
       <span class="miniatura"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></span>
       Fazer minha encomenda
     </a>
