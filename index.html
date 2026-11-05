@@ -1217,16 +1217,16 @@ const HERO = [
 let PRODUCTS = [
   /* ======================== CARDÁPIO DE NATAL (encomenda) ======================== */
   { id:"en-salgadinhos", group:"Cardápio de Natal", name:"Salgadinhos tradicionais", cat:"Natal · por cento", img:"img/nt-salg-trad.webp", fit:"cover",
-    desc:"Monte seu cento misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:50, min:50, mixed:true,
+    desc:"Monte do seu jeito, a partir de 10 unidades, misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:5, min:10, mixed:true,
     opts:[
-      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Coxinha","Croquete de calabresa","Travesseiro de carne","Queijo com presunto","Queijo com alho","Bolinha de queijo"] },
+      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[10], values:["Coxinha","Croquete de calabresa","Travesseiro de carne","Queijo com presunto","Queijo com alho","Bolinha de queijo"] },
       { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
     ],
     price:o => o.prep === "Frito" ? 85 : 80 },
   { id:"en-salgadinhos-esp", group:"Cardápio de Natal", name:"Salgadinhos especiais", cat:"Natal · por cento", img:"img/nt-salgadinhos.webp", fit:"cover",
-    desc:"Risole de camarão, kibe e calabresa especial. Monte seu cento misturando os sabores.", byCento:true, step:50, min:50, mixed:true,
+    desc:"Risole de camarão, kibe e calabresa especial. Monte do seu jeito, a partir de 10 unidades.", byCento:true, step:5, min:10, mixed:true,
     opts:[
-      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Risole de camarão","Kibe","Calabresa especial"] },
+      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[10], values:["Risole de camarão","Kibe","Calabresa especial"] },
       { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
     ],
     price:o => o.prep === "Frito" ? 90 : 85 },
@@ -1281,16 +1281,16 @@ let PRODUCTS = [
 
   /* ===================== PRONTO ENTREGA ===================== */
   { id:"pe-salgadinhos", group:"Pronto entrega", name:"Salgadinhos tradicionais", cat:"Pronto entrega · por cento", img:"img/nt-salg-trad.webp", fit:"cover",
-    desc:"Monte seu cento misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:50, min:50, mixed:true,
+    desc:"Monte do seu jeito, a partir de 10 unidades, misturando os sabores tradicionais. Congelados ou fritos.", byCento:true, step:5, min:10, mixed:true,
     opts:[
-      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Coxinha","Croquete de calabresa","Travesseiro de carne","Queijo com presunto","Queijo com alho","Bolinha de queijo"] },
+      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[10], values:["Coxinha","Croquete de calabresa","Travesseiro de carne","Queijo com presunto","Queijo com alho","Bolinha de queijo"] },
       { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
     ],
     price:o => o.prep === "Frito" ? 85 : 80 },
   { id:"pe-salgadinhos-esp", group:"Pronto entrega", name:"Salgadinhos especiais", cat:"Pronto entrega · por cento", img:"img/nt-salgadinhos.webp", fit:"cover",
-    desc:"Risole de camarão, kibe e calabresa especial. Monte seu cento misturando os sabores.", byCento:true, step:50, min:50, mixed:true,
+    desc:"Risole de camarão, kibe e calabresa especial. Monte do seu jeito, a partir de 10 unidades.", byCento:true, step:5, min:10, mixed:true,
     opts:[
-      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[50], values:["Risole de camarão","Kibe","Calabresa especial"] },
+      { k:"sabores", label:"Quantos de cada sabor", type:"mix", step:5, start:[10], values:["Risole de camarão","Kibe","Calabresa especial"] },
       { k:"prep", label:"Preparo", type:"chips", values:[{v:"Congelado"},{v:"Frito"}] }
     ],
     price:o => o.prep === "Frito" ? 90 : 85 },
@@ -1509,7 +1509,7 @@ function optHTML(p, d){
   const cond = d.showIf ? ` data-show-k="${d.showIf.k}" data-show-v="${esc(d.showIf.v)}"` : "";
   if(d.type === "mix"){
     const each = Math.floor(p.min / d.values.length / d.step) * d.step || d.step;
-    return `<div class="opt osec">${secHead(d.label, `Distribua ${p.min} unidades entre os sabores, de ${d.step} em ${d.step}`, `<span class="req mix-st">Obrigatório</span>`)}<div class="mix sec-b">${d.values.map((v,i) =>
+    return `<div class="opt osec">${secHead(d.label, `A partir de ${p.min} unidades, escolhendo os sabores de ${d.step} em ${d.step}`, `<span class="req mix-st">Obrigatório</span>`)}<div class="mix sec-b">${d.values.map((v,i) =>
       `<div class="mix-row orow"><span class="ot"><b>${esc(v)}</b></span><div class="qty sm" role="group" aria-label="Quantidade de ${esc(v)}"><button type="button" data-mix="${i}" data-d="-1" aria-label="Menos ${esc(v)}"><svg class="i"><use href="#minus"/></svg></button><output class="mv" data-i="${i}">${d.start ? (d.start[i] || 0) : each}</output><button type="button" data-mix="${i}" data-d="1" aria-label="Mais ${esc(v)}"><svg class="i"><use href="#plus"/></svg></button></div></div>`).join("")}<p class="mix-status" aria-live="polite"></p></div></div>`;
   }
   const vals = d.values.map(v => typeof v === "string" ? { v } : v);
